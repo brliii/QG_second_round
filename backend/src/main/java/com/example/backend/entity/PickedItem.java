@@ -5,20 +5,20 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("lost_item")
-public class LostItem {
-    @TableId(type = IdType.AUTO)
+@TableName("picked_item")
+public class PickedItem {
+    @TableId(type= IdType.AUTO)
     private Long id;
     private Long userId;
     private String name;
     private String location;
-    private LocalDateTime lostTime;
+    private LocalDateTime pickTime;
     private String description;
     private String aiDescription;
     private String imageUrl;
     private String contact;
-    private Integer isTop;
-    private LocalDateTime topExpire;
+    private Integer visibilityPreset;
+    private Integer enableClaimWorkflow;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
