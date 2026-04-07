@@ -48,6 +48,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- BCrypt 加密 -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
         <!-- 校验 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -108,7 +114,7 @@
             <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- Hutool工具类（可选） -->
+        <!-- Hutool工具类 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
