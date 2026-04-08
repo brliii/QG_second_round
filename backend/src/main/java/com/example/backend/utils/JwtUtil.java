@@ -1,6 +1,7 @@
 package com.example.backend.utils;
 
 
+import groovy.cli.CliBuilderException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,10 +25,10 @@ public class JwtUtil {
     }
 
     //生成token
-    public String generateToken(Long userId, String username) {
+    public String generateToken(Long userId, String username,Integer role) {
         Date now = new Date();
         Date endDate = new Date(now.getTime() + expiration);
-        return Jwts.builder().setSubject(userId.toString()).claim("username", username).setIssuedAt(now).setExpiration(endDate).signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+        return Jwts.builder().setSubject(userId.toString()).claim("username", username).claim("role",role).setIssuedAt(now).setExpiration(endDate).signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
     }
 
     private Claims analyseToken(String token) {
@@ -42,6 +43,11 @@ public class JwtUtil {
     public String getUsernameFromToken(String token) {
         Claims claims = analyseToken(token);
         return claims.get("username", String.class);
+    }
+
+    public Integer getRoleFromToken(String token) {
+        Claims claims = analyseToken(token);
+        return claims.get("role", Integer.class);
     }
 
     public boolean validateToken(String token) {

@@ -38,3 +38,8 @@ jwt:
 file:
   upload-dir: /uploads/
 
+admin:
+  register-secret: mySuperSecretKey123
+
+
+
