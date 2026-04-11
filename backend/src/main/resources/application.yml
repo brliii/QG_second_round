@@ -36,7 +36,7 @@ jwt:
 
 # 文件上传路径
 file:
-  upload-dir: /uploads/
+  upload-dir: D:/uploads/
 
 admin:
   register-secret: mySuperSecretKey123

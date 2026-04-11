@@ -1,0 +1,30 @@
+### 1. 登录（手动复制返回的 data 中的 token）
+POST http://localhost:8080/user/login
+Content-Type: application/x-www-form-urlencoded
+
+account=test@example.com&password=123456
+
+### 2. 获取用户信息（手动将下方 {{token}} 替换为上面复制的真实 token）
+GET http://localhost:8080/user/info
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ0ZXN0dXNlciIsInJvbGUiOjAsImlhdCI6MTc3NTgyNTQzMSwiZXhwIjoxNzc1OTExODMxfQ.PARdjvQjpmY3QkdNx7-zQeN6WrLPessmHwa9QXRDzxc
+
+
+### 3. 发布失物（同样手动替换 token）
+POST http://localhost:8080/lost/create
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ0ZXN0dXNlciIsInJvbGUiOjAsImlhdCI6MTc3NTgyNTYzNSwiZXhwIjoxNzc1OTEyMDM1fQ.27arFNyi1aeLv1fcC4X-O8NIbDBfTO79tCjhZx3NFcU
+Content-Type: application/json
+
+{
+  "name": "校园卡",
+  "location": "西区食堂",
+  "lostTime": "2026-04-10T10:00:00",
+  "description": "蓝色卡套",
+  "imageUrl": "/uploads/demo.jpg",
+  "contact": "13800138000"
+}
+
+### 4. 查看失物详情
+GET http://localhost:8080/lost/list
+
+### 5. 未登录查看拾取详情（应返回401）
+GET http://localhost:8080/picked/detail/1

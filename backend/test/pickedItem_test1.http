@@ -1,0 +1,167 @@
+### 1. 注册普通用户 A
+POST http://localhost:8080/user/register
+Content-Type: application/json
+
+{
+  "username": "userA",
+  "email": "usera@test.com",
+  "phone": "13800000001",
+  "password": "123456"
+}
+
+### 2. 注册普通用户 B
+POST http://localhost:8080/user/register
+Content-Type: application/json
+
+{
+  "username": "userB",
+  "email": "userb@test.com",
+  "phone": "13800000002",
+  "password": "123456"
+}
+
+### 3. 注册管理员（如果尚未注册，使用密钥）
+POST http://localhost:8080/user/registerAdmin?secretKey=mySuperSecretKey123
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin@test.com",
+  "phone": "13800000000",
+  "password": "123456"
+}
+
+### 4. 用户A 登录（获取 tokenA）
+POST http://localhost:8080/user/login
+Content-Type: application/x-www-form-urlencoded
+
+account=13800000001&password=123456
+
+> {%
+    client.global.set("tokenA", response.body.data);
+%}
+
+### 5. 用户A 发布拾取物品（visibility_preset = 0，全公开）
+POST http://localhost:8080/picked/create
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ1c2VyQSIsInJvbGUiOjAsImlhdCI6MTc3NTgyNzM0OSwiZXhwIjoxNzc1OTEzNzQ5fQ.vO0G3FSxJU-wbBy_71EsXe1R_D0koVVp3AFdSj_pm80
+Content-Type: application/json
+
+{
+  "name": "水杯",
+  "location": "图书馆",
+  "pickTime": "2026-04-10T09:00:00",
+  "description": "白色保温杯",
+  "imageUrl": "/uploads/cup.jpg",
+  "contact": "usera@test.com",
+  "visibilityPreset": 0,
+  "enableClaimWorkflow": 0
+}
+
+### 6. 用户A 发布拾取物品（visibility_preset = 1，隐藏联系方式）
+POST http://localhost:8080/picked/create
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "name": "笔记本",
+  "location": "教学楼",
+  "pickTime": "2026-04-10T10:00:00",
+  "description": "黑色皮面笔记本",
+  "imageUrl": "/uploads/notebook.jpg",
+  "contact": "13800000001",
+  "visibilityPreset": 1,
+  "enableClaimWorkflow": 0
+}
+
+### 7. 用户A 发布拾取物品（visibility_preset = 2，仅注册用户可见全部）
+POST http://localhost:8080/picked/create
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "name": "钥匙串",
+  "location": "食堂",
+  "pickTime": "2026-04-10T11:00:00",
+  "description": "三把钥匙带U盘",
+  "imageUrl": "/uploads/keys.jpg",
+  "contact": "13800000001",
+  "visibilityPreset": 2,
+  "enableClaimWorkflow": 0
+}
+
+### 8. 用户A 发布拾取物品（visibility_preset = 3，仅自己可见）
+POST http://localhost:8080/picked/create
+Authorization: Bearer {{tokenA}}
+Content-Type: application/json
+
+{
+  "name": "校园卡",
+  "location": "操场",
+  "pickTime": "2026-04-10T12:00:00",
+  "description": "姓名张三",
+  "imageUrl": "/uploads/card.jpg",
+  "contact": "13800000001",
+  "visibilityPreset": 3,
+  "enableClaimWorkflow": 0
+}
+
+### 9. 用户B 登录（获取 tokenB）
+POST http://localhost:8080/user/login
+Content-Type: application/x-www-form-urlencoded
+
+account=13800000002&password=123456
+
+> {%
+    client.global.set("tokenB", response.body.data);
+%}
+
+### 10. 未登录用户访问 preset=0 的物品（应全可见）
+GET http://localhost:8080/picked/detail/1
+
+### 11. 未登录用户访问 preset=1 的物品（应隐藏联系方式）
+GET http://localhost:8080/picked/detail/2
+
+### 12. 未登录用户访问 preset=2 的物品（应隐藏联系方式、描述等）
+GET http://localhost:8080/picked/detail/3
+
+### 13. 未登录用户访问 preset=3 的物品（应返回 403）
+GET http://localhost:8080/picked/detail/4
+
+### 14. 用户B（普通登录）访问 preset=0 的物品（应全可见）
+GET http://localhost:8080/picked/detail/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlcm5hbWUiOiJ1c2VyQiIsInJvbGUiOjAsImlhdCI6MTc3NTgyNzQ3NCwiZXhwIjoxNzc1OTEzODc0fQ.Sxos1tqIdnRNsXhhZA5sKaF7KQS90_yvhndbrriN1Mw
+
+### 15. 用户B 访问 preset=1 的物品（应隐藏联系方式）
+GET http://localhost:8080/picked/detail/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlcm5hbWUiOiJ1c2VyQiIsInJvbGUiOjAsImlhdCI6MTc3NTgyNzQ3NCwiZXhwIjoxNzc1OTEzODc0fQ.Sxos1tqIdnRNsXhhZA5sKaF7KQS90_yvhndbrriN1Mw
+
+### 16. 用户B 访问 preset=2 的物品（应全可见，因为已登录）
+GET http://localhost:8080/picked/detail/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlcm5hbWUiOiJ1c2VyQiIsInJvbGUiOjAsImlhdCI6MTc3NTgyNzQ3NCwiZXhwIjoxNzc1OTEzODc0fQ.Sxos1tqIdnRNsXhhZA5sKaF7KQS90_yvhndbrriN1Mw
+
+### 17. 用户B 访问 preset=3 的物品（应返回 403）
+GET http://localhost:8080/picked/detail/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlcm5hbWUiOiJ1c2VyQiIsInJvbGUiOjAsImlhdCI6MTc3NTgyNzQ3NCwiZXhwIjoxNzc1OTEzODc0fQ.Sxos1tqIdnRNsXhhZA5sKaF7KQS90_yvhndbrriN1Mw
+
+### 18. 用户A（发布者本人）访问自己所有物品（应全可见）
+GET http://localhost:8080/picked/detail/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ1c2VyQSIsInJvbGUiOjAsImlhdCI6MTc3NTgyNzYzMywiZXhwIjoxNzc1OTE0MDMzfQ.-iFrD3OvoVQizm7YhkSMJAs-UM3n8KPIirup8XYI00o
+
+### 19. 管理员登录（获取 adminToken，假设管理员已存在）
+POST http://localhost:8080/user/login
+Content-Type: application/x-www-form-urlencoded
+
+account=13800000000&password=123456
+
+> {%
+    client.global.set("adminToken", response.body.data);
+%}
+
+### 20. 管理员访问 preset=3 的物品（应全可见）
+GET http://localhost:8080/picked/detail/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOjEsImlhdCI6MTc3NTg5MDgyOSwiZXhwIjoxNzc1OTc3MjI5fQ.O-fh9AFmZQ7JJGKrIRj9hOoMPie6mEqfvqxdzhUbs14
+
+
+
+
+

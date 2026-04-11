@@ -33,7 +33,7 @@ public class JwtUtil {
 
     private Claims analyseToken(String token) {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
-    }
+    }//claims是一种map
 
     public Long getUserIdFromToken(String token) {
         Claims claims = analyseToken(token);
