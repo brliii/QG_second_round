@@ -6,16 +6,12 @@ import java.util.List;
 public interface PickedItemService {
     //创建拾取物品
     boolean create(Long userId, PickedItem pickedItem);
-
     //更新拾取物品
     boolean update(Long userId, Long id, PickedItem updateData);
-
     //逻辑删除拾取物品
     boolean delete(Long userId, Long id);
-
     //根据ID查询
     PickedItem getById(Long id);
-
     //条件分页列表
     List<PickedItem> listByCondition(String location, String name, String sortBy, int page, int size);
 }

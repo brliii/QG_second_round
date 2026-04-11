@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.backend.entity.User;
 
 public interface UserService {
+    //注册
     boolean register(User user);
-
+    //管理员注册
     boolean registerAdmin(User user, String secretKey);
-
+    //登录
     String login(String account,String password);//需要返回个token所以string类型
-
+    //获取信息
     User getCurrentUser(Long userId);
 }

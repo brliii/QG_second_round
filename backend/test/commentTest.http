@@ -1,0 +1,23 @@
+### 发送评论（需要登录，token）
+POST http://localhost:8080/comment/send
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ1c2VyQSIsInJvbGUiOjAsImlhdCI6MTc3NTkwODAyNiwiZXhwIjoxNzc1OTk0NDI2fQ.Cs95M42UKXx1DL-ahDKMP4spYLdEWjSoOH4-yIGgJvo
+Content-Type: application/json
+
+{
+  "toUserId": 1,
+  "targetType": 0,
+  "targetId": 1,
+  "content": "你好，我捡到了你的校园卡"
+}
+
+### 获取失物id=1的评论列表（公开，无需token）
+GET http://localhost:8080/comment/target?targetType=0&targetId=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ1c2VyQSIsInJvbGUiOjAsImlhdCI6MTc3NTkwODQzOSwiZXhwIjoxNzc1OTk0ODM5fQ.iXQEAsOUbIm3E9cOh2nSVXfOjc23RyF2zO-8Ns4uGEQ
+
+### 获取未读消息数（需token）
+GET http://localhost:8080/comment/unread/count
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ1c2VyQSIsInJvbGUiOjAsImlhdCI6MTc3NTkwODAyNiwiZXhwIjoxNzc1OTk0NDI2fQ.Cs95M42UKXx1DL-ahDKMP4spYLdEWjSoOH4-yIGgJvo
+
+### 标记消息为已读（需token）
+PUT http://localhost:8080/comment/read/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ1c2VyQSIsInJvbGUiOjAsImlhdCI6MTc3NTkwODAyNiwiZXhwIjoxNzc1OTk0NDI2fQ.Cs95M42UKXx1DL-ahDKMP4spYLdEWjSoOH4-yIGgJvo
