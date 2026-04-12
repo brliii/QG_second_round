@@ -41,8 +41,13 @@ public class LostItemServiceImpl implements LostItemService {
     }
 
     @Override
+    public boolean adminUpdate(LostItem lostItem) {
+        return lostItemMapper.updateById(lostItem) > 0;
+    }
+
+    @Override
     public boolean delete(Long userId, Long id) {//这个是用户自己删除自己的
-        QueryWrapper<LostItem> wrapper = new QueryWrapper<>();
+        QueryWrapper<LostItem> wrapper = new QueryWrapper<>();//查询条件
         wrapper.eq("id", id).eq("user_id", userId);
         LostItem update = new LostItem();
         update.setStatus(2); //逻辑删除，避免误删导致数据丢失
@@ -72,13 +77,17 @@ public class LostItemServiceImpl implements LostItemService {
             wrapper.like("name", name);
         }//wrapper可叠加
         wrapper.eq("status", 0);//只筛选正常状态的
-        if ("lostTime".equals(sortBy)) {
-            wrapper.orderByDesc("lost_time");
-        } else {
-            wrapper.orderByDesc("create_time");
-        }
+        wrapper.orderByDesc("is_top")
+                .apply("top_expire > NOW() OR top_expire IS NULL")
+                .orderByDesc("lost_time".equals(sortBy)?"lost_time":"create_time");
         Page<LostItem> pageObject = new Page<>(curPage, size);
         Page<LostItem> result = lostItemMapper.selectPage(pageObject, wrapper);
         return result.getRecords();
+    }
+
+    @Override
+    public boolean isOwner(Long userId, Long lostItemId) {
+        LostItem item = lostItemMapper.selectById(lostItemId);
+        return item != null && item.getUserId().equals(userId);//不存在也顺便返回了
     }
 }

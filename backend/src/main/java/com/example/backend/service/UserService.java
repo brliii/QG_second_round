@@ -14,4 +14,6 @@ public interface UserService {
     User getCurrentUser(Long userId);
     //更新用户状态（和举报有关）
     boolean updateUserStatus(User user);
+    //封禁或解封用户 0-解封 1-封禁
+    boolean banUser(Long userId,Integer status);
 }

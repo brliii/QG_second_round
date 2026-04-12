@@ -6,6 +6,7 @@ import com.example.backend.entity.User;
 import com.example.backend.service.UserService;
 import com.example.backend.utils.ConvertUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,5 +59,13 @@ public class UserController {
         }
     }
 
-
+    @PutMapping("/ban/{userId}")
+    public Result<String> banUser(@PathVariable Long userId, @RequestParam Integer status, HttpServletRequest request) {
+        Integer role=(Integer) request.getAttribute("role");
+        if(role==null || role!=1){
+            return Result.error(403,"仅管理员可操作");
+        }
+        boolean success=userService.banUser(userId, status);
+        return success?Result.success("操作成功"):Result.error(500,"操作失败");
+    }
 }

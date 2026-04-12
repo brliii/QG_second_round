@@ -104,4 +104,14 @@ public class CommentController {
             boolean success = commentService.markAsRead(id,userId);
             return success?Result.success("已标记为已读"):Result.error(500,"操作失败");
     }
+
+    @DeleteMapping("/admin/delete/{id}")
+    public Result<String> adminDeleteComment(@PathVariable Long id, HttpServletRequest request) {
+        Integer role=(Integer) request.getAttribute("role");
+        if (role == null || role != 1) {
+            return Result.error(403, "仅管理员可操作");
+        }
+        boolean success = commentService.deleteById(id);
+        return success ? Result.success("删除成功") : Result.error(500, "删除失败");
+    }
 }

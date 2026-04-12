@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService{
     @Value("${admin.register-secret}")
     private String adminRegisterSecret;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();//密码加密，常量且不可修改
 
     @Override
     public boolean register(User user) {
@@ -109,6 +109,14 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean updateUserStatus(User user) {
+        return userMapper.updateById(user) > 0;
+    }
+
+    @Override
+    public boolean banUser(Long userId,Integer status){
+        User user = new User();
+        user.setId(userId);
+        user.setStatus(status);
         return userMapper.updateById(user) > 0;
     }
 }

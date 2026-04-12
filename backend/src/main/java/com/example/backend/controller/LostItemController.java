@@ -54,6 +54,16 @@ public class LostItemController {
         return success ? Result.success("删除成功") : Result.error(403, "删除失败或无权删除");
     }
 
+    @DeleteMapping("/admin/delete/{id}")
+    public Result<String> adminDeleteLost(@PathVariable Long id, HttpServletRequest request) {
+        Integer role=(Integer) request.getAttribute("role");
+        if(role==null || role!=1){
+            return Result.error(403,"仅管理员可操作");
+        }
+        boolean success=lostItemService.adminDelete(id);
+        return success?Result.success("删除成功"):Result.error(500,"删除失败");
+    }
+
     @GetMapping("/detail/{id}")
     public Result<LostItemVo> detail(@PathVariable Long id) {
         System.out.println("LostItemController.detail 被调用，id=" + id);

@@ -57,6 +57,16 @@ public class PickedItemController {
         return success ? Result.success("删除成功") : Result.error(403, "删除失败或无权删除");
     }
 
+    @DeleteMapping("/admin/delete/{id}")
+    public Result<String> adminDeletePicked(@PathVariable Long id, HttpServletRequest request) {
+        Integer role=(Integer) request.getAttribute("role");
+        if (role == null || role != 1) {
+            return Result.error(403, "仅管理员可操作");
+        }
+        boolean success = pickedItemService.adminDelete(id);
+        return success ? Result.success("删除成功") : Result.error(500, "删除失败");
+    }
+
     @GetMapping("/detail/{id}")
     public Result<PickedItemVo> detail(@PathVariable Long id, HttpServletRequest request) {
         PickedItem item = pickedItemService.getById(id);
