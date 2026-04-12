@@ -12,4 +12,6 @@ public interface UserService {
     String login(String account,String password);//需要返回个token所以string类型
     //获取信息
     User getCurrentUser(Long userId);
+    //更新用户状态（和举报有关）
+    boolean updateUserStatus(User user);
 }

@@ -53,4 +53,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         update.setIsRead(1);
         return commentMapper.update(update, wrapper) > 0;
     }
+
+    @Override
+    public boolean deleteById(Long id) {//这块是直接物理删除，因为表里没有status字段
+        return commentMapper.deleteById(id) > 0;
+    }
 }

@@ -50,6 +50,14 @@ public class PickedItemServiceImpl implements PickedItemService {
     }
 
     @Override
+    public boolean adminDelete(Long id) {
+        PickedItem pickedItem = new PickedItem();
+        pickedItem.setId(id);
+        pickedItem.setStatus(2);//逻辑删除
+        return pickedItemMapper.updateById(pickedItem) > 0;
+    }
+
+    @Override
     public PickedItem getById(Long id) {
         return pickedItemMapper.selectById(id);
     }

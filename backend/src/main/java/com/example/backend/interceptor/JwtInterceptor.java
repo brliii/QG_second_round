@@ -41,7 +41,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         Integer role = jwtUtil.getRoleFromToken(token);
         System.out.println("role from token: " + role);
         request.setAttribute("userId", userId);//这也是一个map，所以这里先贴标签，到了controller里面直接解析就行了
-        request.setAttribute("username", username);
+        request.setAttribute("username", username);//这里先从token来设置这三个值，是因为前端在操作时一般不需要输入这三个数据，再有就是可以统一管理加强保密
         request.setAttribute("role", role);
         return true;
     }

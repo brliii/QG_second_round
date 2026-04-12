@@ -1,6 +1,7 @@
 package com.example.backend.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.backend.entity.LostItem;
 import com.example.backend.mapper.LostItemMapper;
@@ -40,12 +41,20 @@ public class LostItemServiceImpl implements LostItemService {
     }
 
     @Override
-    public boolean delete(Long userId, Long id) {
+    public boolean delete(Long userId, Long id) {//这个是用户自己删除自己的
         QueryWrapper<LostItem> wrapper = new QueryWrapper<>();
         wrapper.eq("id", id).eq("user_id", userId);
         LostItem update = new LostItem();
         update.setStatus(2); //逻辑删除，避免误删导致数据丢失
         return lostItemMapper.update(update, wrapper) > 0;
+    }
+
+    @Override
+    public boolean adminDelete(Long id) {
+        LostItem lostItem = new LostItem();
+        lostItem.setId(id);
+        lostItem.setStatus(2); //逻辑删除
+        return lostItemMapper.updateById(lostItem) > 0;
     }
 
     @Override

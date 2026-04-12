@@ -12,4 +12,6 @@ public interface ReportService {
     List<Report> getPendingReports();
     //处理举报
     boolean handleReport(Long reportId,Integer status,Long adminId);
+    //根据id获取举报
+    Report getById(Long id);
 }

@@ -1,0 +1,20 @@
+### 用户举报（需要登录）
+POST http://localhost:8080/report/create
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJ1c2VyQSIsInJvbGUiOjAsImlhdCI6MTc3NTk2MjQwMCwiZXhwIjoxNzc2MDQ4ODAwfQ.fHiOY97QpzM1yL7BN1lz1JFPu_jG8qIFBVZVMj_RKQQ
+Content-Type: application/json
+
+{
+  "targetType": 0,
+  "targetId": 1,
+  "reason": "虚假信息"
+}
+
+### 管理员获取待处理举报（需要管理员token）
+GET http://localhost:8080/report/pending
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOjEsImlhdCI6MTc3NTk2MjQzNiwiZXhwIjoxNzc2MDQ4ODM2fQ.lhirl2j82JoZGZ_4Sb6ENgM-1eI6CmFWTknBHZd4pIk
+
+### 管理员处理举报（驳回）
+PUT http://localhost:8080/report/handle/1?status=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOjEsImlhdCI6MTc3NTk2MjQzNiwiZXhwIjoxNzc2MDQ4ODM2fQ.lhirl2j82JoZGZ_4Sb6ENgM-1eI6CmFWTknBHZd4pIk
+
+
