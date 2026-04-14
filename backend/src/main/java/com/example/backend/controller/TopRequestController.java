@@ -50,11 +50,14 @@ public class TopRequestController {
 
     @GetMapping("/pending")
     public Result<List<TopRequestVo>> getPending(HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
-        if (role == null || role != 1) {
+        Long adminId = (Long) request.getAttribute("userId");
+        if (adminId == null) {
+            return Result.error(401, "未登录");
+        }
+        List<TopRequest> list = topRequestService.getPendingRequests(adminId);
+        if (list == null) {
             return Result.error(403, "仅管理员可访问");
         }
-        List<TopRequest> list = topRequestService.getPendingRequests();
         List<TopRequestVo> voList = new ArrayList<>();
         for (TopRequest tr : list) {
             TopRequestVo vo = ConvertUtil.convert(tr, TopRequestVo.class);
@@ -69,10 +72,9 @@ public class TopRequestController {
 
     @PutMapping("/approve/{requestId}")
     public Result<String> approve(@PathVariable Long requestId,@RequestParam Integer approveStatus,HttpServletRequest request) {
-        Integer role = (Integer) request.getAttribute("role");
         Long adminId = (Long) request.getAttribute("userId");
-        if (role == null || role != 1) {
-            return Result.error(403,"仅管理员可操作");
+        if (adminId == null) {
+            return Result.error(401, "未登录");
         }
         TopRequest topRequest = topRequestService.getById(requestId);
         if (topRequest == null) {
@@ -90,7 +92,7 @@ public class TopRequestController {
             }
         }
 
-        boolean success= topRequestService.approve(requestId,adminId,approveStatus);
-        return success?Result.success("处理成功"):Result.error(500,"处理失败");
+        boolean success = topRequestService.approve(requestId, adminId, approveStatus);
+        return success ? Result.success("处理成功") : Result.error(403, "无权操作或处理失败");
     }
 }

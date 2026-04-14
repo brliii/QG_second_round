@@ -3,7 +3,9 @@ package com.example.backend.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.backend.entity.Comment;
+import com.example.backend.entity.User;
 import com.example.backend.mapper.CommentMapper;
+import com.example.backend.mapper.UserMapper;
 import com.example.backend.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import java.util.List;
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements CommentService {
     @Autowired
     private CommentMapper commentMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public boolean send(Comment comment) {
@@ -55,7 +59,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     }
 
     @Override
-    public boolean deleteById(Long id) {//这块是直接物理删除，因为表里没有status字段
+    public boolean deleteById(Long adminId, Long id) {
+        User admin = userMapper.selectById(adminId);
+        if (admin == null || admin.getRole() != 1) {
+            return false;
+        }
+        //这块是直接物理删除，因为表里没有status字段
         return commentMapper.deleteById(id) > 0;
     }
 }

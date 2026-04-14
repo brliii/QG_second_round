@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.backend.entity.LostItem;
 import java.util.List;
 
@@ -12,12 +13,12 @@ public interface LostItemService {
     boolean adminUpdate(LostItem lostItem);
     //用户自己，逻辑删除失物
     boolean delete(Long userId, Long id);
-    //管理员删除(在管理员controller调用，不需要用户名)
-    boolean adminDelete(Long id);
+    //管理员删除(在管理员controller调用，需要管理员ID进行权限校验)
+    boolean adminDelete(Long adminId, Long id);
     //根据ID查询
     LostItem getById(Long id);
     //条件分页列表
-    List<LostItem> listByCondition(String location, String name, String sortBy, int page, int size);
+    Page<LostItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size);
     //判断失物发布者与当前用户是否同个
     boolean isOwner(Long userId, Long lostItemId);
 }

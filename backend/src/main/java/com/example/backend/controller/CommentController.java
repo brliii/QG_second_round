@@ -12,7 +12,6 @@ import com.example.backend.vo.CommentVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,21 +96,21 @@ public class CommentController {
 
     @PutMapping("/read/{id}")
     public Result<String> markAsRead(@PathVariable Long id,HttpServletRequest request){//这里的id是commentId
-            Long userId=(Long) request.getAttribute("userId");
-            if(userId == null) {
-                return Result.error(401,"未登录");
-            }
-            boolean success = commentService.markAsRead(id,userId);
-            return success?Result.success("已标记为已读"):Result.error(500,"操作失败");
+        Long userId=(Long) request.getAttribute("userId");
+        if(userId == null) {
+            return Result.error(401,"未登录");
+        }
+        boolean success = commentService.markAsRead(id,userId);
+        return success?Result.success("已标记为已读"):Result.error(500,"操作失败");
     }
 
     @DeleteMapping("/admin/delete/{id}")
     public Result<String> adminDeleteComment(@PathVariable Long id, HttpServletRequest request) {
-        Integer role=(Integer) request.getAttribute("role");
-        if (role == null || role != 1) {
-            return Result.error(403, "仅管理员可操作");
+        Long adminId = (Long) request.getAttribute("userId");
+        if (adminId == null) {
+            return Result.error(401, "未登录");
         }
-        boolean success = commentService.deleteById(id);
-        return success ? Result.success("删除成功") : Result.error(500, "删除失败");
+        boolean success = commentService.deleteById(adminId, id);
+        return success ? Result.success("删除成功") : Result.error(403, "无权操作或删除失败");
     }
 }

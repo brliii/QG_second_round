@@ -1,9 +1,13 @@
 package com.example.backend.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.backend.common.Result;
 import com.example.backend.dto.PickedItemDto;
 import com.example.backend.entity.PickedItem;
+import com.example.backend.enums.VisibilityPresetEnum;
+import com.example.backend.service.AiService;
 import com.example.backend.service.PickedItemService;
+import com.example.backend.service.UserService;
 import com.example.backend.utils.ConvertUtil;
 import com.example.backend.vo.PickedItemVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,8 @@ import java.util.List;
 public class PickedItemController {
     @Autowired
     private PickedItemService pickedItemService;
+    @Autowired
+    private AiService aiService;
 
     @PostMapping("/create")
     public Result<String> create(@RequestBody PickedItemDto dto, HttpServletRequest request) {
@@ -33,6 +39,33 @@ public class PickedItemController {
         boolean success = pickedItemService.create(userId, item);
         return success ? Result.success("发布成功") : Result.error(500, "发布失败");
     }
+
+    //如果用户觉得自己需要ai生成描述，也可手动添加
+    @PostMapping("/regenerateAiDesc/{id}")
+    public Result<String> regenerateAiDesc(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.error(401, "未登录");
+        }
+        //先查询物品（用于生成AI描述，同时也可校验是否存在）
+        PickedItem item = pickedItemService.getById(id);
+        if (item == null) {
+            return Result.error(404, "物品不存在");
+        }
+
+        String newDesc = aiService.generateItemDescription(item.getName(), item.getDescription());
+        PickedItem updateData = new PickedItem();
+        updateData.setId(id);
+        updateData.setAiDescription(newDesc);
+
+        boolean success = pickedItemService.update(userId, id, updateData);
+        if (success) {
+            return Result.success("重新生成成功", newDesc);
+        } else {
+            return Result.error(403, "无权操作或更新失败");
+        }
+    }
+
 
     @PutMapping("/update")
     public Result<String> update(@RequestParam Long id, @RequestBody PickedItemDto dto, HttpServletRequest request) {
@@ -59,12 +92,12 @@ public class PickedItemController {
 
     @DeleteMapping("/admin/delete/{id}")
     public Result<String> adminDeletePicked(@PathVariable Long id, HttpServletRequest request) {
-        Integer role=(Integer) request.getAttribute("role");
-        if (role == null || role != 1) {
-            return Result.error(403, "仅管理员可操作");
+        Long adminId = (Long) request.getAttribute("userId");
+        if (adminId == null) {
+            return Result.error(401, "未登录");
         }
-        boolean success = pickedItemService.adminDelete(id);
-        return success ? Result.success("删除成功") : Result.error(500, "删除失败");
+        boolean success = pickedItemService.adminDelete(adminId, id);
+        return success ? Result.success("删除成功") : Result.error(403, "无权操作或删除失败");
     }
 
     @GetMapping("/detail/{id}")
@@ -88,22 +121,20 @@ public class PickedItemController {
         }
 
         //非本人且非管理员，才根据 visibility_preset 过滤
-        Integer preset = item.getVisibilityPreset();
-        if (preset == null) preset = 0;
-
-        switch (preset) {
-            case 1: //隐藏联系方式
+        VisibilityPresetEnum presetEnum = VisibilityPresetEnum.fromCode(item.getVisibilityPreset());
+        switch (presetEnum) {
+            case HIDE_CONTACT:
                 vo.setContact(null);
                 break;
-            case 2: //仅注册用户可见全部
+            case REGISTERED_ONLY:
                 if (currentUserId == null) {
                     vo.setContact(null);
                     vo.setDescription(null);
                 }
                 break;
-            case 3: //仅自己可见（非本人不可见）
+            case OWNER_ONLY:
                 return Result.error(403, "该物品仅发布者可见");
-            default: //0 全公开
+            default: //PUBLIC
                 break;
         }
 
@@ -112,10 +143,12 @@ public class PickedItemController {
 
 
     @GetMapping("/list")
-    public Result<List<PickedItemVo>> list(@RequestParam(required = false) String location, @RequestParam(required = false) String name,//不一定都会传入，筛选的时候可以不传入则全选，也可只传入一个
-                                           @RequestParam(defaultValue = "createTime") String sortBy, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
-        List<PickedItem> list = pickedItemService.listByCondition(location, name, sortBy, page, size);
-        List<PickedItemVo> voList = ConvertUtil.convertList(list, PickedItemVo.class);
-        return Result.success(voList);
+    public Result<Page<PickedItemVo>> list(
+            @RequestParam(required = false) String location, @RequestParam(required = false) String name, @RequestParam(required = false) String startTime, @RequestParam(required = false) String endTime,//不一定都会传入，筛选的时候可以不传入则全选，也可只传入一个
+            @RequestParam(defaultValue = "createTime") String sortBy,
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        Page<PickedItem> pageResult = pickedItemService.pageByCondition(location, name, startTime, endTime, sortBy, page, size);
+        Page<PickedItemVo> voPage = ConvertUtil.convertPage(pageResult, PickedItemVo.class);
+        return Result.success(voPage);
     }
 }

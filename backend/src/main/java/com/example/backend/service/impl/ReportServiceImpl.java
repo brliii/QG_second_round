@@ -3,7 +3,9 @@ package com.example.backend.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.backend.entity.Report;
+import com.example.backend.entity.User;
 import com.example.backend.mapper.ReportMapper;
+import com.example.backend.mapper.UserMapper;
 import com.example.backend.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import java.util.List;
 public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> implements ReportService {
     @Autowired
     private ReportMapper reportMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public boolean create(Report report) {
@@ -22,7 +26,11 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     }
 
     @Override
-    public List<Report> getPendingReports() {
+    public List<Report> getPendingReports(Long adminId) {
+        User admin = userMapper.selectById(adminId);
+        if (admin == null || admin.getRole() != 1) {
+            return null; //非管理员返回null，Controller层处理为403
+        }
         QueryWrapper<Report> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 0).orderByDesc("create_time");
         return reportMapper.selectList(wrapper);
@@ -30,6 +38,10 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 
     @Override
     public boolean handleReport(Long reportId, Integer status, Long adminId) {
+        User admin = userMapper.selectById(adminId);
+        if (admin == null || admin.getRole() != 1) {
+            return false;
+        }
         //status: 1-驳回, 2-删除内容, 3-封禁用户
         Report report = reportMapper.selectById(reportId);
         if (report == null) return false;

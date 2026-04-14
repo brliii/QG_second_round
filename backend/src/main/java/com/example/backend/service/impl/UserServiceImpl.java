@@ -113,10 +113,47 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public boolean banUser(Long userId,Integer status){
+    public boolean banUser(Long operatorId, Long userId, Integer status){
+        //校验操作者是否为管理员
+        User operator = userMapper.selectById(operatorId);
+        if (operator == null || operator.getRole() != 1) {
+            return false;
+        }
         User user = new User();
         user.setId(userId);
         user.setStatus(status);
+        return userMapper.updateById(user) > 0;
+    }
+
+    @Override
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            return false;
+        }
+        //验证旧密码
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return false;
+        }
+        //新密码加密
+        user.setPassword(passwordEncoder.encode(newPassword));
+        return userMapper.updateById(user) > 0;
+    }
+
+    @Override
+    public boolean updateUserInfo(Long userId, String nickname, String avatar, String phone) {
+        User user = new User();
+        user.setId(userId);
+        if (nickname != null) {
+            user.setNickname(nickname);
+        }
+        if (avatar != null) {
+            user.setAvatar(avatar);
+        }
+        if (phone != null) {
+            user.setPhone(phone);
+        }
+        //如果所有字段都为 null，updateById 仍然会执行，但不会更新任何字段
         return userMapper.updateById(user) > 0;
     }
 }

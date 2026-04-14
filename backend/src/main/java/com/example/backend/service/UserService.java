@@ -15,5 +15,9 @@ public interface UserService {
     //更新用户状态（和举报有关）
     boolean updateUserStatus(User user);
     //封禁或解封用户 0-解封 1-封禁
-    boolean banUser(Long userId,Integer status);
+    boolean banUser(Long operatorId,Long userId,Integer status);
+    //修改密码
+    boolean changePassword(Long userId, String oldPassword, String newPassword);
+    //更新用户信息
+    boolean updateUserInfo(Long userId, String nickname, String avatar, String phone);
 }

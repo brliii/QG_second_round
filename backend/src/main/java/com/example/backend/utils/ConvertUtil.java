@@ -1,7 +1,7 @@
 package com.example.backend.utils;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.BeanUtils;
-
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,5 +36,12 @@ public class ConvertUtil {//统一转换工具，用于实体类与dto和vo的�
         return targetList;
     }
 
+    //分页对象转换
+    public static <S, T> Page<T> convertPage(Page<S> sourcePage, Class<T> targetClass) {
+        Page<T> targetPage = new Page<>(sourcePage.getCurrent(), sourcePage.getSize(), sourcePage.getTotal());
+        List<T> targetRecords = convertList(sourcePage.getRecords(), targetClass);
+        targetPage.setRecords(targetRecords);
+        return targetPage;
+    }
 
 }

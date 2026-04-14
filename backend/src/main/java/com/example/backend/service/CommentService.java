@@ -14,6 +14,6 @@ public interface CommentService {
     long getUnreadCount(Long userId);
     //标记未读为已读信息
     boolean markAsRead(Long commentId, Long userId);
-    //根据id删除评论
-    boolean deleteById(Long id);
+    //根据id删除评论（需管理员权限）
+    boolean deleteById(Long adminId, Long id);
 }

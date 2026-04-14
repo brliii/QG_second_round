@@ -1,0 +1,3 @@
+### 管理员查看平台统计
+GET http://localhost:8080/admin/statistics
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOjEsImlhdCI6MTc3NjAwMTU1NywiZXhwIjoxNzc2MDg3OTU3fQ.UzEdcXw2vYCZdpO5Ofm_CKvmJbcEE7mqBgIu2TV2NC4

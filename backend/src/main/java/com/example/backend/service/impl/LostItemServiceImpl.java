@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.backend.entity.LostItem;
+import com.example.backend.entity.User;
 import com.example.backend.mapper.LostItemMapper;
+import com.example.backend.mapper.UserMapper;
 import com.example.backend.service.LostItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import java.util.List;
 public class LostItemServiceImpl implements LostItemService {
     @Autowired
     private LostItemMapper lostItemMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public boolean create(Long userId, LostItem lostItem) {
@@ -55,7 +59,11 @@ public class LostItemServiceImpl implements LostItemService {
     }
 
     @Override
-    public boolean adminDelete(Long id) {
+    public boolean adminDelete(Long adminId, Long id) {
+        User admin = userMapper.selectById(adminId);
+        if (admin == null || admin.getRole() != 1) {
+            return false;
+        }
         LostItem lostItem = new LostItem();
         lostItem.setId(id);
         lostItem.setStatus(2); //逻辑删除
@@ -68,21 +76,28 @@ public class LostItemServiceImpl implements LostItemService {
     }
 
     @Override
-    public List<LostItem> listByCondition(String location, String name, String sortBy, int curPage, int size) {
+    public Page<LostItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size) {
+        Page<LostItem> pageObj = new Page<>(page, size);
         QueryWrapper<LostItem> wrapper = new QueryWrapper<>();
         if (location != null && !location.isEmpty()) {
             wrapper.eq("location", location);
         }
         if (name != null && !name.isEmpty()) {
             wrapper.like("name", name);
-        }//wrapper可叠加
-        wrapper.eq("status", 0);//只筛选正常状态的
-        wrapper.orderByDesc("is_top")
-                .apply("top_expire > NOW() OR top_expire IS NULL")
-                .orderByDesc("lost_time".equals(sortBy)?"lost_time":"create_time");
-        Page<LostItem> pageObject = new Page<>(curPage, size);
-        Page<LostItem> result = lostItemMapper.selectPage(pageObject, wrapper);
-        return result.getRecords();
+        }
+        if (startTime != null && !startTime.isEmpty()) {
+            wrapper.ge("lost_time", startTime);
+        }
+        if (endTime != null && !endTime.isEmpty()) {
+            wrapper.le("lost_time", endTime);
+        }
+        wrapper.eq("status", 0); //正常状态
+        if ("lostTime".equals(sortBy)) {
+            wrapper.orderByDesc("lost_time");
+        } else {
+            wrapper.orderByDesc("create_time");
+        }
+        return lostItemMapper.selectPage(pageObj, wrapper);
     }
 
     @Override

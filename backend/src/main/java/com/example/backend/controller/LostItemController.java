@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.backend.common.Result;
 import com.example.backend.dto.LostItemDto;
 import com.example.backend.entity.LostItem;
@@ -14,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/lost")
 public class LostItemController {
-
     @Autowired
     private LostItemService lostItemService;
 
@@ -51,17 +51,17 @@ public class LostItemController {
     public Result<String> delete(@PathVariable Long id, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         boolean success = lostItemService.delete(userId, id);
-        return success ? Result.success("删除成功") : Result.error(403, "删除失败或无权删除");
+        return success?Result.success("删除成功"):Result.error(403, "删除失败或无权删除");
     }
 
     @DeleteMapping("/admin/delete/{id}")
     public Result<String> adminDeleteLost(@PathVariable Long id, HttpServletRequest request) {
-        Integer role=(Integer) request.getAttribute("role");
-        if(role==null || role!=1){
-            return Result.error(403,"仅管理员可操作");
+        Long adminId = (Long) request.getAttribute("userId");
+        if (adminId == null) {
+            return Result.error(401, "未登录");
         }
-        boolean success=lostItemService.adminDelete(id);
-        return success?Result.success("删除成功"):Result.error(500,"删除失败");
+        boolean success = lostItemService.adminDelete(adminId, id);
+        return success?Result.success("删除成功"):Result.error(403, "无权操作或删除失败");
     }
 
     @GetMapping("/detail/{id}")
@@ -76,10 +76,12 @@ public class LostItemController {
     }
 
     @GetMapping("/list")
-    public Result<List<LostItemVo>> list(@RequestParam(required = false) String location, @RequestParam(required = false) String name,
-                                         @RequestParam(defaultValue = "createTime") String sortBy, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
-        List<LostItem> list = lostItemService.listByCondition(location, name, sortBy, page, size);
-        List<LostItemVo> voList = ConvertUtil.convertList(list, LostItemVo.class);
-        return Result.success(voList);
+    public Result<Page<LostItemVo>> list(
+            @RequestParam(required = false) String location, @RequestParam(required = false) String name, @RequestParam(required = false) String startTime, @RequestParam(required = false) String endTime,//不一定都会传入，筛选的时候可以不传入则全选，也可只传入一个
+            @RequestParam(defaultValue = "createTime") String sortBy,
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        Page<LostItem> pageResult = lostItemService.pageByCondition(location, name, startTime, endTime, sortBy, page, size);
+        Page<LostItemVo> voPage = ConvertUtil.convertPage(pageResult, LostItemVo.class);
+        return Result.success(voPage);
     }
 }

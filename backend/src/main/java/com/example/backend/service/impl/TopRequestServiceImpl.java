@@ -3,7 +3,9 @@ package com.example.backend.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.backend.entity.TopRequest;
+import com.example.backend.entity.User;
 import com.example.backend.mapper.TopRequestMapper;
+import com.example.backend.mapper.UserMapper;
 import com.example.backend.service.TopRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import java.util.List;
 public class TopRequestServiceImpl extends ServiceImpl<TopRequestMapper,TopRequest> implements TopRequestService {
     @Autowired
     private TopRequestMapper topRequestMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public boolean create(TopRequest request) {
@@ -24,14 +28,22 @@ public class TopRequestServiceImpl extends ServiceImpl<TopRequestMapper,TopReque
     }
 
     @Override
-    public List<TopRequest> getPendingRequests() {
+    public List<TopRequest> getPendingRequests(Long adminId) {
+        User admin = userMapper.selectById(adminId);
+        if (admin == null || admin.getRole() != 1) {
+            return null;
+        }
         QueryWrapper<TopRequest> wrapper = new QueryWrapper<>();
         wrapper.eq("status",0).orderByDesc("request_time");
         return topRequestMapper.selectList(wrapper);
     }
 
     @Override
-    public boolean approve(Long requestId,Long adminId,Integer approveStatus) {
+    public boolean approve(Long requestId, Long adminId, Integer approveStatus) {
+        User admin = userMapper.selectById(adminId);
+        if (admin == null || admin.getRole() != 1) {
+            return false;
+        }
         TopRequest request = topRequestMapper.selectById(requestId);
         if(request==null){
             return false;
