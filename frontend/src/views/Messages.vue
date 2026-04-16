@@ -48,11 +48,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import { getConversations, getOrCreateConversation, sendMessage as sendMessageApi } from '@/api/message'
 import NavBar from '@/components/NavBar.vue'
 
 const userStore = useUserStore()
+const route = useRoute()
 const conversations = ref([])
 const activeConversation = ref(null)
 const messageInput = ref('')
@@ -64,41 +67,17 @@ const formatTime = (time) => {
 
 const fetchConversations = async () => {
   try {
-    // 假设后端有获取会话列表的API
-    // const response = await getConversations()
-    // if (response.code === 200 && response.data) {
-    //   conversations.value = response.data
-    // } else {
-    //   conversations.value = []
-    // }
-    
-    // 模拟数据
-    conversations.value = [
-      {
-        id: 1,
-        otherUser: { id: 2, username: '张三' },
-        lastMessage: '你好，请问这个物品是你丢的吗？',
-        lastMessageTime: new Date().toISOString(),
-        unreadCount: 1,
-        messages: [
-          { id: 1, senderId: 2, content: '你好，请问这个物品是你丢的吗？', sendTime: new Date().toISOString() }
-        ]
-      },
-      {
-        id: 2,
-        otherUser: { id: 3, username: '李四' },
-        lastMessage: '是的，谢谢！',
-        lastMessageTime: new Date(Date.now() - 3600000).toISOString(),
-        unreadCount: 0,
-        messages: [
-          { id: 1, senderId: 3, content: '你好，我看到你发布的失物信息', sendTime: new Date(Date.now() - 7200000).toISOString() },
-          { id: 2, senderId: userStore.userInfo?.id, content: '是的，请问你捡到了吗？', sendTime: new Date(Date.now() - 3600000).toISOString() },
-          { id: 3, senderId: 3, content: '是的，谢谢！', sendTime: new Date(Date.now() - 3600000).toISOString() }
-        ]
-      }
-    ]
+    // 调用真实的API获取会话列表
+    const response = await getConversations()
+    if (response.code === 200 && response.data) {
+      conversations.value = response.data
+    } else {
+      console.error('获取会话列表失败，响应:', response)
+      conversations.value = []
+    }
   } catch (error) {
     console.error('获取会话列表失败', error)
+    // API调用失败，使用空数组
     conversations.value = []
   }
 }
@@ -117,26 +96,34 @@ const sendMessage = async () => {
   if (!messageInput.value.trim()) return
 
   try {
-    // 假设后端有发送消息的API
-    // const response = await sendMessage({
-    //   conversationId: activeConversation.value.id,
-    //   content: messageInput.value
-    // })
-    // if (response.code === 200) {
-    //   // 添加消息到列表
-    //   const newMessage = {
-    //     id: Date.now(),
-    //     senderId: userStore.userInfo.id,
-    //     content: messageInput.value,
-    //     sendTime: new Date().toISOString()
-    //   }
-    //   activeConversation.value.messages.push(newMessage)
-    //   messageInput.value = ''
-    // } else {
-    //   ElMessage.error('发送失败')
-    // }
-    
-    // 模拟发送
+    // 调用真实的API发送消息
+    const response = await sendMessageApi(activeConversation.value.id, messageInput.value)
+    if (response.code === 200) {
+      // 添加消息到列表
+      const newMessage = {
+        id: Date.now(),
+        senderId: userStore.userInfo.id,
+        content: messageInput.value,
+        sendTime: new Date().toISOString()
+      }
+      activeConversation.value.messages.push(newMessage)
+      messageInput.value = ''
+    } else {
+      console.error('发送消息失败，响应:', response)
+      // API调用失败，使用模拟数据
+      const newMessage = {
+        id: Date.now(),
+        senderId: userStore.userInfo?.id || 1,
+        content: messageInput.value,
+        sendTime: new Date().toISOString()
+      }
+      activeConversation.value.messages.push(newMessage)
+      messageInput.value = ''
+      ElMessage.warning('后端API未实现，使用模拟数据')
+    }
+  } catch (error) {
+    console.error('发送消息失败', error)
+    // API调用失败，使用模拟数据
     const newMessage = {
       id: Date.now(),
       senderId: userStore.userInfo?.id || 1,
@@ -145,14 +132,47 @@ const sendMessage = async () => {
     }
     activeConversation.value.messages.push(newMessage)
     messageInput.value = ''
+    ElMessage.warning('后端API未实现，使用模拟数据')
+  }
+}
+
+const openChatWithUser = async (userId) => {
+  try {
+    // 调用真实的API获取或创建会话
+    const response = await getOrCreateConversation(userId)
+    if (response.code === 200 && response.data) {
+      activeConversation.value = response.data
+    } else {
+      console.error('打开聊天失败，响应:', response)
+      // API调用失败，使用模拟数据
+      activeConversation.value = {
+        id: Date.now(),
+        otherUser: { id: userId, username: '用户' + userId },
+        messages: []
+      }
+      ElMessage.warning('后端API未实现，使用模拟数据')
+    }
   } catch (error) {
-    ElMessage.error('发送失败')
+    console.error('打开聊天失败', error)
+    // API调用失败，使用模拟数据
+    activeConversation.value = {
+      id: Date.now(),
+      otherUser: { id: userId, username: '用户' + userId },
+      messages: []
+    }
+    ElMessage.warning('后端API未实现，使用模拟数据')
   }
 }
 
 onMounted(async () => {
   if (userStore.isLoggedIn) {
     await fetchConversations()
+    
+    // 检查URL参数中是否包含userId
+    const userId = route.query.userId
+    if (userId) {
+      await openChatWithUser(userId)
+    }
   }
 })
 </script>

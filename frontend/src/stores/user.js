@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { login, getUserInfo, register, updateUserInfo, changePassword } from '@/api/user'
+import { login, getUserInfo, register, registerAdmin, updateUserInfo, changePassword } from '@/api/user'
 import { ElMessage } from 'element-plus'
 
 export const useUserStore = defineStore('user', {
@@ -36,7 +36,14 @@ export const useUserStore = defineStore('user', {
 
     async register(userData) {
       try {
-        const response = await register(userData)
+        let response
+        if (userData.userType === 'admin') {
+          // 调用管理员注册 API
+          response = await registerAdmin(userData, userData.adminKey)
+        } else {
+          // 调用普通用户注册 API
+          response = await register(userData)
+        }
         if (response.code === 200) {
           ElMessage.success('注册成功')
           return true
@@ -56,6 +63,8 @@ export const useUserStore = defineStore('user', {
         if (response.code === 200 && response.data) {
           this.userInfo = response.data
           this.isLoggedIn = true
+          // 将角色存储到 localStorage 中，用于路由守卫检查
+          localStorage.setItem('role', this.userInfo.role)
         } else {
           this.logout()
         }
@@ -102,6 +111,7 @@ export const useUserStore = defineStore('user', {
       this.userInfo = null
       this.isLoggedIn = false
       localStorage.removeItem('token')
+      localStorage.removeItem('role')
     },
 
     initializeAuth() {

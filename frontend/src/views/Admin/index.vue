@@ -205,7 +205,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { DataLine, User, DocumentCopy, Warning, Star } from '@element-plus/icons-vue'
 import { getStatistics } from '@/api/admin'
-import { banUser as banUserApi } from '@/api/user'
+import { banUser as banUserApi, getUserList } from '@/api/user'
 import { getLostList, deleteLost } from '@/api/lost'
 import { getPickedList, deletePicked } from '@/api/picked'
 import { getPendingReports, handleReport as handleReportApi } from '@/api/report'
@@ -256,7 +256,7 @@ const handleMenuSelect = (index) => {
   if (index === 'statistics') {
     loadStatistics()
   } else if (index === 'users') {
-    // 这里需要用户管理API，暂时跳过
+    loadUsers()
   } else if (index === 'items') {
     loadItems()
   } else if (index === 'reports') {
@@ -268,82 +268,144 @@ const handleMenuSelect = (index) => {
 
 const loadStatistics = async () => {
   try {
-    statistics.value = await getStatistics()
+    const response = await getStatistics()
+    if (response.code === 200 && response.data) {
+      statistics.value = response.data
+    }
   } catch (error) {
+    console.error('获取统计数据失败', error)
     ElMessage.error('获取统计数据失败')
+  }
+}
+
+const loadUsers = async () => {
+  try {
+    const response = await getUserList()
+    if (response.code === 200 && response.data) {
+      users.value = response.data || []
+    }
+  } catch (error) {
+    console.error('获取用户列表失败', error)
+    ElMessage.error('获取用户列表失败')
   }
 }
 
 const loadItems = async () => {
   try {
     if (itemType.value === 'lost') {
-      const res = await getLostList({ page: 1, size: 100 })
-      items.value = res.records || []
+      const response = await getLostList({ page: 1, size: 100 })
+      if (response.code === 200 && response.data) {
+        items.value = response.data.records || []
+      }
     } else {
-      const res = await getPickedList({ page: 1, size: 100 })
-      items.value = res.records || []
+      const response = await getPickedList({ page: 1, size: 100 })
+      if (response.code === 200 && response.data) {
+        items.value = response.data.records || []
+      }
     }
   } catch (error) {
+    console.error('获取物品列表失败', error)
     ElMessage.error('获取物品列表失败')
   }
 }
 
 const loadReports = async () => {
   try {
-    reports.value = await getPendingReports()
+    const response = await getPendingReports()
+    if (response.code === 200 && response.data) {
+      reports.value = response.data || []
+    }
   } catch (error) {
+    console.error('获取举报列表失败', error)
     ElMessage.error('获取举报列表失败')
   }
 }
 
 const loadTopRequests = async () => {
   try {
-    topRequests.value = await getPendingTopRequests()
+    const response = await getPendingTopRequests(1, 100)
+    console.log('置顶申请响应:', response)
+    if (response.code === 200 && response.data) {
+      // 处理分页格式
+      if (Array.isArray(response.data)) {
+        topRequests.value = response.data
+      } else if (response.data.records) {
+        topRequests.value = response.data.records
+      } else {
+        topRequests.value = []
+      }
+    } else {
+      console.warn('置顶申请响应格式异常:', response)
+      topRequests.value = []
+    }
   } catch (error) {
+    console.error('获取置顶申请失败', error)
     ElMessage.error('获取置顶申请失败')
   }
 }
 
 const banUser = async (userId, status) => {
   try {
-    await banUserApi(userId, status)
-    ElMessage.success('操作成功')
-    // 重新加载用户列表
+    const response = await banUserApi(userId, status)
+    if (response.code === 200) {
+      ElMessage.success('操作成功')
+      // 重新加载用户列表
+      loadUsers()
+    } else {
+      ElMessage.error(response.message || '操作失败')
+    }
   } catch (error) {
+    console.error('操作失败', error)
     ElMessage.error('操作失败')
   }
 }
 
 const deleteItem = async (itemId) => {
   try {
+    let response
     if (itemType.value === 'lost') {
-      await deleteLost(itemId)
+      response = await deleteLost(itemId)
     } else {
-      await deletePicked(itemId)
+      response = await deletePicked(itemId)
     }
-    ElMessage.success('删除成功')
-    loadItems()
+    if (response.code === 200) {
+      ElMessage.success('删除成功')
+      loadItems()
+    } else {
+      ElMessage.error(response.message || '删除失败')
+    }
   } catch (error) {
+    console.error('删除失败', error)
     ElMessage.error('删除失败')
   }
 }
 
 const handleReport = async (reportId, status) => {
   try {
-    await handleReportApi(reportId, status)
-    ElMessage.success('处理成功')
-    loadReports()
+    const response = await handleReportApi(reportId, status)
+    if (response.code === 200) {
+      ElMessage.success('处理成功')
+      loadReports()
+    } else {
+      ElMessage.error(response.message || '处理失败')
+    }
   } catch (error) {
+    console.error('处理失败', error)
     ElMessage.error('处理失败')
   }
 }
 
 const approveTopRequest = async (requestId, approveStatus) => {
   try {
-    await approveTopRequestApi(requestId, approveStatus)
-    ElMessage.success('处理成功')
-    loadTopRequests()
+    const response = await approveTopRequestApi(requestId, approveStatus)
+    if (response.code === 200) {
+      ElMessage.success('处理成功')
+      loadTopRequests()
+    } else {
+      ElMessage.error(response.message || '处理失败')
+    }
   } catch (error) {
+    console.error('处理失败', error)
     ElMessage.error('处理失败')
   }
 }

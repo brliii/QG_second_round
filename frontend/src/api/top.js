@@ -8,10 +8,11 @@ export function applyTop(data) {
   })
 }
 
-export function getPendingTopRequests() {
+export function getPendingTopRequests(page = 1, size = 100) {
   return request({
     url: '/top/pending',
-    method: 'get'
+    method: 'get',
+    params: { page, size }
   })
 }
 

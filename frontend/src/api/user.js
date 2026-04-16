@@ -55,3 +55,10 @@ export function banUser(userId, status) {
     params: { status }
   })
 }
+
+export function getUserList() {
+  return request({
+    url: '/user/list',
+    method: 'get'
+  })
+}

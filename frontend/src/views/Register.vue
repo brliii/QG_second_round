@@ -3,6 +3,12 @@
     <div class="register-card">
       <h2 class="register-title">注册校园失物招领平台</h2>
       <el-form :model="registerForm" :rules="rules" ref="registerFormRef" label-width="0">
+        <el-form-item>
+          <el-radio-group v-model="registerForm.userType">
+            <el-radio-button label="user">普通用户</el-radio-button>
+            <el-radio-button label="admin">管理员</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item prop="username">
           <el-input
             v-model="registerForm.username"
@@ -42,6 +48,15 @@
             show-password
           />
         </el-form-item>
+        <el-form-item v-if="registerForm.userType === 'admin'" prop="adminKey">
+          <el-input
+            v-model="registerForm.adminKey"
+            type="password"
+            placeholder="请输入管理员密钥"
+            prefix-icon="Key"
+            show-password
+          />
+        </el-form-item>
         <el-form-item>
           <el-button
             type="primary"
@@ -70,11 +85,13 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const registerForm = reactive({
+  userType: 'user',
   username: '',
   email: '',
   phone: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  adminKey: ''
 })
 
 const rules = {
@@ -104,6 +121,15 @@ const rules = {
           callback()
         }
       },
+      trigger: 'blur'
+    }
+  ],
+  adminKey: [
+    {
+      required: (rule, value, callback) => {
+        return registerForm.userType === 'admin'
+      },
+      message: '请输入管理员密钥',
       trigger: 'blur'
     }
   ]
