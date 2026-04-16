@@ -13,6 +13,8 @@ import com.example.backend.vo.PickedItemVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -66,6 +68,22 @@ public class PickedItemController {
         }
     }
 
+    //生成AI描述（发布前）
+    @PostMapping("/generateAiDesc")
+    public Result<String> generateAiDesc(@RequestParam String name, @RequestParam String description, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.error(401, "未登录");
+        }
+
+        String aiDesc = aiService.generateItemDescription(name, description);
+        System.out.println("生成的 AI 描述：" + aiDesc);
+        if (aiDesc != null && !aiDesc.isEmpty()) {
+            return Result.success("生成成功", aiDesc);
+        } else {
+            return Result.error(500, "生成失败");
+        }
+    }
 
     @PutMapping("/update")
     public Result<String> update(@RequestParam Long id, @RequestBody PickedItemDto dto, HttpServletRequest request) {
@@ -146,9 +164,26 @@ public class PickedItemController {
     public Result<Page<PickedItemVo>> list(
             @RequestParam(required = false) String location, @RequestParam(required = false) String name, @RequestParam(required = false) String startTime, @RequestParam(required = false) String endTime,//不一定都会传入，筛选的时候可以不传入则全选，也可只传入一个
             @RequestParam(defaultValue = "createTime") String sortBy,
-            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "4") int size) {
         Page<PickedItem> pageResult = pickedItemService.pageByCondition(location, name, startTime, endTime, sortBy, page, size);
         Page<PickedItemVo> voPage = ConvertUtil.convertPage(pageResult, PickedItemVo.class);
         return Result.success(voPage);
+    }
+
+    @PostMapping("/search")
+    public Result<List<PickedItemVo>> searchByDescription(@RequestParam String description) {
+        if (description == null || description.trim().isEmpty()) {
+            return Result.error(400, "描述不能为空");
+        }
+        //关键词预筛选（最多20条）
+        List<PickedItem> candidates = pickedItemService.searchByKeywords(description);
+        if (candidates.isEmpty()) {
+            return Result.success(Collections.emptyList());
+        }
+        //AI 精排
+        List<PickedItem> sorted = aiService.searchBestMatches(description, candidates);
+        //转换为 VO 返回
+        List<PickedItemVo> voList = ConvertUtil.convertList(sorted, PickedItemVo.class);
+        return Result.success(voList);
     }
 }

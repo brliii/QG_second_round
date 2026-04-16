@@ -32,7 +32,7 @@ public class CommentController {
         }
         Comment comment = new Comment();
         comment.setFromUserId(fromUserId);
-        comment.setToUserId(dto.getToUserId());
+        comment.setToUserId(dto.getToUserId() != null ? dto.getToUserId() : 0L);
         comment.setTargetType(dto.getTargetType());
         comment.setTargetId(dto.getTargetId());
         comment.setContent(dto.getContent());

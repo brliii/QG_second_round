@@ -1,6 +1,7 @@
 package com.example.backend.config;
 
 import com.example.backend.interceptor.JwtInterceptor;
+import com.example.backend.utils.FileUploadUtil;
 import com.example.backend.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +18,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer{//启动时立刻执行
     @Autowired
     private JwtInterceptor jwtInterceptor;
+    @Autowired
+    private FileUploadConfig fileUploadConfig;
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -31,6 +34,10 @@ public class WebConfig implements WebMvcConfigurer{//启动时立刻执行
                         "/user/registerAdmin",
                         "/lost/list",
                         "/picked/list",
+                        "/lost/detail/**",
+                        "/picked/detail/**",
+                        "/comment/target",
+                        "/upload/**",
                         "/uploads/**"
                 );
     }
@@ -38,6 +45,6 @@ public class WebConfig implements WebMvcConfigurer{//启动时立刻执行
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry){
-        registry.addResourceHandler("/uploads/**").addResourceLocations("file:"+uploadDir);
+        registry.addResourceHandler("/uploads/**").addResourceLocations("file:"+ fileUploadConfig.getUploadDir());
     }
 }

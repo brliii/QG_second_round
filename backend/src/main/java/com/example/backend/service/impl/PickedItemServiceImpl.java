@@ -88,7 +88,7 @@ public class PickedItemServiceImpl implements PickedItemService {
         Page<PickedItem> pageObj = new Page<>(page, size);
         QueryWrapper<PickedItem> wrapper = new QueryWrapper<>();
         if (location != null && !location.isEmpty()) {
-            wrapper.eq("location", location);
+            wrapper.like("location", location);
         }
         if (name != null && !name.isEmpty()) {
             wrapper.like("name", name);
@@ -112,6 +112,16 @@ public class PickedItemServiceImpl implements PickedItemService {
     public List<PickedItem> getByUserId(Long userId) {
         QueryWrapper<PickedItem> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
+        return pickedItemMapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<PickedItem> searchByKeywords(String keyword) {
+        QueryWrapper<PickedItem> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 0);
+        wrapper.apply("(name LIKE CONCAT('%', {0}, '%') OR description LIKE CONCAT('%', {0}, '%'))", keyword);
+        wrapper.orderByDesc("create_time");
+        wrapper.last("limit 20");
         return pickedItemMapper.selectList(wrapper);
     }
 }

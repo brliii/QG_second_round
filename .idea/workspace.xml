@@ -4,8 +4,60 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5c078601-8acf-496a-8cd4-19837a743c64" name="更改" comment="">
+    <list default="true" id="2d2c3354-b6e3-416f-b17d-7cbd44736f64" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/dto/SearchRequestDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/vo/SearchResultVo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/admin.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/claim.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/comment.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/lost.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/picked.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/report.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/top.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/upload.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/api/user.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/ItemCard.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/NavBar.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/shims-vue.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/stores/user.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/utils/request.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/Admin/index.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/ClaimCreate.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/Detail.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/Home.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/Login.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/LostCreate.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/MyClaims.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/MyMessages.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/PickedCreate.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/Profile.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/ReceivedClaims.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/views/Register.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/config/FileUploadConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/config/FileUploadConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/config/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/CommentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/CommentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/LostItemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/LostItemController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/PickedItemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/PickedItemController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/UploadController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/UploadController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/dto/LostItemDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/dto/LostItemDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/dto/PickedItemDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/dto/PickedItemDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/dto/UserDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/handler/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/handler/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/AiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/AiService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/PickedItemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/PickedItemService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/AiServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/AiServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/LostItemServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/LostItemServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/PickedItemServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/PickedItemServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailyProgress.md" beforeDir="false" afterPath="$PROJECT_DIR$/dailyProgress.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,8 +66,23 @@
   </component>
   <component name="CopilotPersistence">
     <persistenceIdMap>
-      <entry key="_D:/github_repository/QG_second_round" value="3Bz5IrnIdYtq6JFoOXajmQ7I8z9" />
+      <entry key="_D:/github_repository/QG_second_round" value="3CL3zvL2kremdIL2nLTeClkELx6" />
     </persistenceIdMap>
+  </component>
+  <component name="CopilotUserSelectedModel">
+    <selectedModels>
+      <entry key="chat-panel" value="Auto" />
+      <entry key="agent-panel" value="Auto" />
+    </selectedModels>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+        <option value="Class" />
+        <option value="Vue Composition API Component" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -35,27 +102,67 @@
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
-  <component name="ProjectId" id="3Bz5IrnIdYtq6JFoOXajmQ7I8z9" />
+  <component name="ProjectId" id="3CL3zvL2kremdIL2nLTeClkELx6" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/github_repository/QG_second_round",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven.backend [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.backend [compile].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Notification.DisplayName-DoNotAsk-DatabaseConfigFileWatcher.found&quot;: &quot;发现新的/更新的数据库配置&quot;,
+    &quot;Notification.DoNotAsk-DatabaseConfigFileWatcher.found&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.BackendApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/github_repository/QG_second_round&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;项目&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.javacompiler&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;D:\\github_repository\\QG_second_round\\frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;vue.recent.templates&quot;: [
+      &quot;Vue Composition API Component&quot;
+    ]
   }
-}]]></component>
+}</component>
+  <component name="RunManager">
+    <configuration name="BackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <envs>
+        <env name="DEEPSEEK_API_KEY" value="sk-32b90a157861460e893059d212c45fb8" />
+        <env name="JWT_SECRET" value="8Ew3dF9pLk2xVq5zYg7aHt4uN6mP1sQr0cXvBwJnMkLpOyIuTzReWqCaSdFgHj" />
+        <env name="DB_PASSWORD" value="1234" />
+        <env name="ZHIPU_API_KEY" value="4f55a016de114100abdd50cd63d280e2.XgNyN4CcQ0fkRUGz" />
+      </envs>
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="backend" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.backend.BackendApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -66,15 +173,39 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="默认任务">
-      <changelist id="5c078601-8acf-496a-8cd4-19837a743c64" name="更改" comment="" />
-      <created>1775478981815</created>
+      <changelist id="2d2c3354-b6e3-416f-b17d-7cbd44736f64" name="更改" comment="" />
+      <created>1776151288615</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1775478981815</updated>
-      <workItem from="1775478983099" duration="272000" />
-      <workItem from="1775479282946" duration="13000" />
-      <workItem from="1775912948919" duration="58000" />
-      <workItem from="1775956298592" duration="656000" />
+      <updated>1776151288615</updated>
+      <workItem from="1776151289938" duration="3071000" />
+      <workItem from="1776154391512" duration="1472000" />
+      <workItem from="1776155892439" duration="175000" />
+      <workItem from="1776156091958" duration="572000" />
+      <workItem from="1776156718296" duration="1425000" />
+      <workItem from="1776158328335" duration="14096000" />
+      <workItem from="1776179141538" duration="2211000" />
+      <workItem from="1776228827685" duration="2822000" />
+      <workItem from="1776249677629" duration="9790000" />
+      <workItem from="1776266056159" duration="6000" />
+      <workItem from="1776266084537" duration="220000" />
+      <workItem from="1776266409462" duration="2689000" />
+      <workItem from="1776306470876" duration="3000" />
+      <workItem from="1776320849761" duration="174000" />
+      <workItem from="1776321070942" duration="703000" />
+      <workItem from="1776321793335" duration="104000" />
+      <workItem from="1776321974842" duration="359000" />
+      <workItem from="1776322350885" duration="854000" />
+      <workItem from="1776323741052" duration="125000" />
+      <workItem from="1776323881689" duration="438000" />
+      <workItem from="1776324527431" duration="957000" />
+      <workItem from="1776325508315" duration="1721000" />
+      <workItem from="1776334855456" duration="1054000" />
+      <workItem from="1776337352302" duration="1890000" />
+      <workItem from="1776339428138" duration="330000" />
+      <workItem from="1776339812163" duration="3793000" />
+      <workItem from="1776344339509" duration="216000" />
+      <workItem from="1776344931766" duration="671000" />
     </task>
     <servers />
   </component>

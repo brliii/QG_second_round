@@ -19,4 +19,6 @@ public interface PickedItemService {
     Page<PickedItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size);
     //根据id找
     List<PickedItem> getByUserId(Long userId);
+    //根据关键词模糊查找用于AI排序前预筛选
+    List<PickedItem> searchByKeywords(String keyword);
 }

@@ -6,6 +6,7 @@ import com.example.backend.utils.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class UploadController {
     private FileUploadConfig fileUploadConfig;
 
     @PostMapping("/image")
-    public Result<String> uploadImage(MultipartFile file) {
+    public Result<String> uploadImage(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return Result.error(400, "文件为空");
         }

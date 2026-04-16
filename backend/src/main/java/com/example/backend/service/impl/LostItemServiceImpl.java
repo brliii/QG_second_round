@@ -80,7 +80,7 @@ public class LostItemServiceImpl implements LostItemService {
         Page<LostItem> pageObj = new Page<>(page, size);
         QueryWrapper<LostItem> wrapper = new QueryWrapper<>();
         if (location != null && !location.isEmpty()) {
-            wrapper.eq("location", location);
+            wrapper.like("location", location);
         }
         if (name != null && !name.isEmpty()) {
             wrapper.like("name", name);

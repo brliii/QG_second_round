@@ -9,6 +9,6 @@ public class FileUploadConfig {
     private String uploadDir;
 
     public String getUploadDir() {
-        return uploadDir;//统一返回上传路径
+        return uploadDir;
     }
 }
