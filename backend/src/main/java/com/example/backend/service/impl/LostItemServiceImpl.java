@@ -21,11 +21,14 @@ public class LostItemServiceImpl implements LostItemService {
     private UserMapper userMapper;
 
     @Override
-    public boolean create(Long userId, LostItem lostItem) {
+    public Long create(Long userId, LostItem lostItem) {
         lostItem.setUserId(userId);
         lostItem.setStatus(0);
         lostItem.setIsTop(0);
-        return lostItemMapper.insert(lostItem) > 0;
+        if (lostItemMapper.insert(lostItem) > 0) {
+            return lostItem.getId();
+        }
+        return null;
     }
 
     @Override
@@ -104,5 +107,24 @@ public class LostItemServiceImpl implements LostItemService {
     public boolean isOwner(Long userId, Long lostItemId) {
         LostItem item = lostItemMapper.selectById(lostItemId);
         return item != null && item.getUserId().equals(userId);//不存在也顺便返回了
+    }
+    
+    @Override
+    public List<LostItem> searchByKeyword(String keyword) {
+        QueryWrapper<LostItem> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 0); // 只查询正常状态的失物
+        // 如果有关键词，先尝试关键词筛选（用于AI预筛选，减少候选集）
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            wrapper.and(w -> w
+                    .like("name", keyword)
+                    .or()
+                    .like("description", keyword)
+                    .or()
+                    .like("location", keyword)
+            );
+        }
+        wrapper.orderByDesc("create_time");
+        wrapper.last("limit 50"); // 增加limit，确保有足够的候选物品供AI排序
+        return lostItemMapper.selectList(wrapper);
     }
 }

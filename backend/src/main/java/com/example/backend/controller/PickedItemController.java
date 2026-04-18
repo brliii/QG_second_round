@@ -26,7 +26,7 @@ public class PickedItemController {
     private AiService aiService;
 
     @PostMapping("/create")
-    public Result<String> create(@RequestBody PickedItemDto dto, HttpServletRequest request) {
+    public Result<Long> create(@RequestBody PickedItemDto dto, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         PickedItem item = new PickedItem();//service层创建方法需要一个实体
         //这里存在字段名不一致，所以不能直接用转换工具
@@ -38,8 +38,8 @@ public class PickedItemController {
         item.setContact(dto.getContact());
         item.setVisibilityPreset(dto.getVisibilityPreset());
         item.setEnableClaimWorkflow(dto.getEnableClaimWorkflow());
-        boolean success = pickedItemService.create(userId, item);
-        return success ? Result.success("发布成功") : Result.error(500, "发布失败");
+        Long itemId = pickedItemService.create(userId, item);
+        return itemId != null ? Result.success(itemId) : Result.error(500, "发布失败");
     }
 
     //如果用户觉得自己需要ai生成描述，也可手动添加
@@ -97,6 +97,9 @@ public class PickedItemController {
         updateData.setContact(dto.getContact());
         updateData.setVisibilityPreset(dto.getVisibilityPreset());
         updateData.setEnableClaimWorkflow(dto.getEnableClaimWorkflow());
+        if (dto.getStatus() != null) {
+            updateData.setStatus(dto.getStatus());
+        }
         boolean success = pickedItemService.update(userId, id, updateData);
         return success ? Result.success("修改成功") : Result.error(403, "无权修改或记录不存在");
     }

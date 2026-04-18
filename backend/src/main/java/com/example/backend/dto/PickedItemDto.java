@@ -15,4 +15,5 @@ public class PickedItemDto {
     private String contact;
     private Integer visibilityPreset;
     private Integer enableClaimWorkflow;
+    private Integer status;
 }

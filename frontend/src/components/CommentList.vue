@@ -11,6 +11,11 @@
         <div v-if="comment.toUsername" class="comment-reply">
           回复 @{{ comment.toUsername }}
         </div>
+        <div class="comment-actions">
+          <el-button v-if="userStore.isLoggedIn && userStore.userInfo?.username !== comment.fromUsername" type="text" size="small" @click="reportComment(comment)">
+            举报
+          </el-button>
+        </div>
       </div>
     </div>
     <div v-if="showForm" class="comment-form">
@@ -35,8 +40,12 @@
 
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { sendComment } from '@/api/comment'
+import { createReport } from '@/api/report'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 const props = defineProps({
   comments: {
@@ -100,6 +109,31 @@ const submitComment = async () => {
     submitting.value = false
   }
 }
+
+const reportComment = async (comment) => {
+  try {
+    const { value: reason } = await ElMessageBox.prompt('请输入举报原因', '举报评论', {
+      confirmButtonText: '提交',
+      cancelButtonText: '取消',
+      inputPattern: /\S/,
+      inputErrorMessage: '举报原因不能为空'
+    })
+
+    const response = await createReport({
+      targetType: 2, // 2 表示评论
+      targetId: comment.id,
+      reason
+    })
+
+    if (response.code === 200) {
+      ElMessage.success('举报成功，等待管理员处理')
+    } else {
+      ElMessage.error(response.message || '举报失败')
+    }
+  } catch (err) {
+    // 用户取消
+  }
+}
 </script>
 
 <style scoped>
@@ -153,6 +187,11 @@ const submitComment = async () => {
   color: #666;
   font-size: 14px;
   font-style: italic;
+}
+
+.comment-actions {
+  margin-top: 8px;
+  text-align: right;
 }
 
 .comment-form {

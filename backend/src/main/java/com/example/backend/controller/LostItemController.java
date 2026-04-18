@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.backend.common.Result;
 import com.example.backend.dto.LostItemDto;
 import com.example.backend.entity.LostItem;
+import com.example.backend.service.AiService;
 import com.example.backend.service.LostItemService;
 import com.example.backend.utils.ConvertUtil;
 import com.example.backend.vo.LostItemVo;
@@ -17,9 +18,12 @@ import java.util.List;
 public class LostItemController {
     @Autowired
     private LostItemService lostItemService;
+    
+    @Autowired
+    private AiService aiService;
 
     @PostMapping("/create")
-    public Result<String> create(@RequestBody LostItemDto dto, HttpServletRequest request) {
+    public Result<Long> create(@RequestBody LostItemDto dto, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         LostItem item = new LostItem();//service层创建方法需要一个实体
 
@@ -29,8 +33,8 @@ public class LostItemController {
         item.setDescription(dto.getDescription());
         item.setImageUrl(dto.getImageUrl());
         item.setContact(dto.getContact());
-        boolean success = lostItemService.create(userId, item);
-        return success ? Result.success("发布成功") : Result.error(500, "发布失败");
+        Long itemId = lostItemService.create(userId, item);
+        return itemId != null ? Result.success(itemId) : Result.error(500, "发布失败");
     }
 
     @PutMapping("/update")
@@ -43,6 +47,9 @@ public class LostItemController {
         updateData.setDescription(dto.getDescription());
         updateData.setImageUrl(dto.getImageUrl());
         updateData.setContact(dto.getContact());
+        if (dto.getStatus() != null) {
+            updateData.setStatus(dto.getStatus());
+        }
         boolean success = lostItemService.update(userId, id, updateData);
         return success ? Result.success("修改成功") : Result.error(403, "无权修改或记录不存在");
     }
@@ -83,5 +90,16 @@ public class LostItemController {
         Page<LostItem> pageResult = lostItemService.pageByCondition(location, name, startTime, endTime, sortBy, page, size);
         Page<LostItemVo> voPage = ConvertUtil.convertPage(pageResult, LostItemVo.class);
         return Result.success(voPage);
+    }
+    
+    @GetMapping("/search")
+    public Result<List<LostItemVo>> search(@RequestParam String description) {
+        // 先通过关键词预筛选，减少候选集大小
+        List<LostItem> candidates = lostItemService.searchByKeyword(description);
+        // 使用AI进行智能排序
+        List<LostItem> sortedItems = aiService.searchLostBestMatches(description, candidates);
+        // 转换为VO
+        List<LostItemVo> voList = ConvertUtil.convertList(sortedItems, LostItemVo.class);
+        return Result.success(voList);
     }
 }

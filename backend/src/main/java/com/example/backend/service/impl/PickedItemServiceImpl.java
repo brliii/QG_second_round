@@ -26,7 +26,7 @@ public class PickedItemServiceImpl implements PickedItemService {
     private UserMapper userMapper;   // 新增，用于校验管理员身份
 
     @Override
-    public boolean create(Long userId, PickedItem pickedItem) {
+    public Long create(Long userId, PickedItem pickedItem) {
         pickedItem.setUserId(userId);
         pickedItem.setStatus(0);
 
@@ -36,7 +36,10 @@ public class PickedItemServiceImpl implements PickedItemService {
             String aiDescription=aiService.generateItemDescription(pickedItem.getName(),description);
             pickedItem.setDescription(aiDescription);
         }
-        return pickedItemMapper.insert(pickedItem) > 0;
+        if (pickedItemMapper.insert(pickedItem) > 0) {
+            return pickedItem.getId();
+        }
+        return null;
     }
 
     @Override
@@ -119,9 +122,16 @@ public class PickedItemServiceImpl implements PickedItemService {
     public List<PickedItem> searchByKeywords(String keyword) {
         QueryWrapper<PickedItem> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 0);
-        wrapper.apply("(name LIKE CONCAT('%', {0}, '%') OR description LIKE CONCAT('%', {0}, '%'))", keyword);
+        // 如果有关键词，先尝试关键词筛选（用于AI预筛选，减少候选集）
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            wrapper.and(w -> w
+                    .like("name", keyword)
+                    .or()
+                    .like("description", keyword)
+            );
+        }
         wrapper.orderByDesc("create_time");
-        wrapper.last("limit 20");
+        wrapper.last("limit 50"); // 增加limit，确保有足够的候选物品供AI排序
         return pickedItemMapper.selectList(wrapper);
     }
 }

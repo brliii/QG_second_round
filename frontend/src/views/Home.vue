@@ -41,6 +41,20 @@
         <span v-if="isAiSearch" style="margin-left: 10px; color: #1677ff;">✨ AI 智能排序结果</span>
       </div>
 
+      <!-- AI 智能搜索 -->
+      <div class="ai-search-bar">
+        <el-input
+          v-model="aiDescription"
+          placeholder="输入物品描述，AI 智能搜索"
+          clearable
+          style="width: 400px;"
+          @keyup.enter="doAiSearch"
+        />
+        <el-button type="info" @click="doAiSearch">
+          <el-icon><Search /></el-icon> AI 搜索
+        </el-button>
+      </div>
+
       <!-- 物品列表 -->
       <div class="items-grid">
         <ItemCard
@@ -51,20 +65,20 @@
         />
       </div>
 
-      <!-- 分页 -->
-      <el-pagination
-        v-if="!isAiSearch"
-        v-model:current-page="page"
-        v-model:page-size="size"
-        :total="total"
-        layout="prev, pager, next"
-        @current-change="fetchList"
-      />
-
-      <!-- 发布按钮 -->
-      <el-button v-if="userStore.isLoggedIn" type="primary" circle class="fab" @click="showPublishMenu">
-        <el-icon><Plus /></el-icon>
-      </el-button>
+      <!-- 分页和发布按钮 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-if="!isAiSearch"
+          v-model:current-page="page"
+          v-model:page-size="size"
+          :total="total"
+          layout="prev, pager, next"
+          @current-change="fetchList"
+        />
+        <el-button v-if="userStore.isLoggedIn" type="primary" @click="showPublishMenu">
+          <el-icon><Plus /></el-icon> 发布物品
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -73,8 +87,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { getLostList } from '@/api/lost'
+import { Plus, Search } from '@element-plus/icons-vue'
+import { getLostList, searchLostByDescription } from '@/api/lost'
 import { getPickedList, searchPickedByDescription } from '@/api/picked'
 import { useUserStore } from '@/stores/user'
 import NavBar from '@/components/NavBar.vue'
@@ -87,10 +101,11 @@ const userStore = useUserStore()
 const type = ref('lost')
 const location = ref('')
 const keyword = ref(route.query.keyword || '')
+const aiDescription = ref('')
 const startTime = ref('')
 const endTime = ref('')
 const page = ref(1)
-const size = ref(4)
+const size = ref(3)
 const list = ref([])
 const total = ref(0)
 const isAiSearch = ref(false)
@@ -115,6 +130,12 @@ const fetchList = async () => {
       const response = await getLostList(params)
       if (response.code === 200 && response.data) {
         list.value = response.data.records || []
+        // 优先按置顶状态排序，再按创建时间排序
+        list.value.sort((a, b) => {
+          if (a.isTop && !b.isTop) return -1
+          if (!a.isTop && b.isTop) return 1
+          return new Date(b.createTime) - new Date(a.createTime)
+        })
         total.value = response.data.total || 0
         isAiSearch.value = false
       } else {
@@ -161,6 +182,12 @@ const fetchList = async () => {
         const response = await getPickedList(params)
         if (response.code === 200 && response.data) {
           list.value = response.data.records || []
+          // 优先按置顶状态排序，再按创建时间排序
+          list.value.sort((a, b) => {
+            if (a.isTop && !b.isTop) return -1
+            if (!a.isTop && b.isTop) return 1
+            return new Date(b.createTime) - new Date(a.createTime)
+          })
           total.value = response.data.total || 0
           isAiSearch.value = false
         } else {
@@ -180,6 +207,35 @@ const fetchList = async () => {
 const doSearch = () => {
   page.value = 1
   fetchList()
+}
+
+const doAiSearch = async () => {
+  if (!aiDescription.value || !aiDescription.value.trim()) {
+    return
+  }
+  try {
+    let response
+    if (type.value === 'picked') {
+      response = await searchPickedByDescription(aiDescription.value)
+    } else {
+      response = await searchLostByDescription(aiDescription.value)
+    }
+    if (response.code === 200 && response.data) {
+      list.value = response.data || []
+      total.value = list.value.length
+      isAiSearch.value = true
+    } else {
+      console.error('AI 搜索失败', response.message)
+      list.value = []
+      total.value = 0
+      isAiSearch.value = false
+    }
+  } catch (err) {
+    console.error('AI 搜索失败', err)
+    list.value = []
+    total.value = 0
+    isAiSearch.value = false
+  }
 }
 
 const showPublishMenu = () => {
@@ -231,6 +287,24 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
   margin-bottom: 32px;
+}
+
+.ai-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
 }
 
 .fab {

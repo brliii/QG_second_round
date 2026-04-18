@@ -132,6 +132,12 @@
           <h2>举报处理</h2>
           <el-table :data="reports" style="width: 100%">
             <el-table-column prop="reporterUsername" label="举报人" width="120" />
+            <el-table-column prop="reportType" label="类型" width="100">
+              <template #default="scope">
+                {{ getReportTypeText(scope.row.reportType) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="reportedId" label="被举报ID" width="120" />
             <el-table-column prop="reason" label="举报原因" width="200" show-overflow-tooltip />
             <el-table-column prop="status" label="状态" width="100">
               <template #default="scope">
@@ -251,6 +257,16 @@ const getReportStatusText = (status) => {
   }
 }
 
+const getReportTypeText = (type) => {
+  switch (type) {
+    case 0: return '失物'
+    case 1: return '拾取'
+    case 2: return '评论'
+    case 3: return '用户'
+    default: return '未知'
+  }
+}
+
 const handleMenuSelect = (index) => {
   activeMenu.value = index
   if (index === 'statistics') {
@@ -312,8 +328,19 @@ const loadItems = async () => {
 const loadReports = async () => {
   try {
     const response = await getPendingReports()
-    if (response.code === 200 && response.data) {
-      reports.value = response.data || []
+    console.log('举报列表响应:', response)
+    if (response && response.code === 200 && response.data) {
+      // 映射后端返回的字段到前端需要的字段
+      reports.value = response.data.map(report => ({
+        id: report.id,
+        reporterUsername: report.reporterUsername || '未知',
+        reportType: report.targetType ?? 0, // 使用 targetType 而不是 reportType
+        reportedId: report.targetId ?? 0, // 使用 targetId 而不是 reportedId
+        reason: report.reason || '',
+        status: report.status || 0,
+        createTime: report.createTime || new Date().toISOString()
+      }))
+      console.log('处理后的举报数据:', reports.value)
     }
   } catch (error) {
     console.error('获取举报列表失败', error)
@@ -325,15 +352,24 @@ const loadTopRequests = async () => {
   try {
     const response = await getPendingTopRequests(1, 100)
     console.log('置顶申请响应:', response)
-    if (response.code === 200 && response.data) {
+    // 检查响应结构
+    if (response && response.code === 200 && response.data) {
       // 处理分页格式
+      let requests = []
       if (Array.isArray(response.data)) {
-        topRequests.value = response.data
+        requests = response.data
       } else if (response.data.records) {
-        topRequests.value = response.data.records
-      } else {
-        topRequests.value = []
+        requests = response.data.records
       }
+      console.log('置顶申请数据:', requests)
+      // 确保数据结构正确
+      topRequests.value = requests.map(request => ({
+        id: request.id,
+        username: request.username || request.userName || '未知用户',
+        itemName: request.itemName || request.item?.name || `物品ID: ${request.itemId}`,
+        status: request.status || 0,
+        createTime: request.createTime || request.createdAt || request.requestTime || new Date().toISOString()
+      }))
     } else {
       console.warn('置顶申请响应格式异常:', response)
       topRequests.value = []

@@ -13,4 +13,5 @@ public class LostItemDto {
     private String description;
     private String imageUrl;
     private String contact;
+    private Integer status;
 }

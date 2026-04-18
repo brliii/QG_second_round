@@ -177,7 +177,17 @@ const generateAiDescription = async () => {
   try {
     const response = await generateAiDesc(form.name, form.description)
     if (response.code === 200 && response.data) {
-      form.description = response.data
+      // 检查响应中是否包含分类信息
+      if (response.data.category) {
+        // 如果有分类，将分类添加到描述的最前面
+        form.description = `【${response.data.category}】${response.data.description || response.data}`
+      } else if (typeof response.data === 'string') {
+        // 如果响应数据是字符串，直接使用
+        form.description = response.data
+      } else if (response.data.description) {
+        // 如果响应数据是对象且包含 description 字段，使用该字段
+        form.description = response.data.description
+      }
       ElMessage.success('AI描述生成成功')
     } else {
       // 不再使用前端拼接，直接提示失败
@@ -241,10 +251,12 @@ const handleSubmit = async () => {
     // 如果申请置顶，发送置顶申请
     if (form.applyTop) {
       try {
-        await applyTop({
+        console.log('发送置顶申请，itemId:', itemId, 'itemType: picked')
+        const response = await applyTop({
           itemId: itemId,
           itemType: 'picked'
         })
+        console.log('置顶申请响应:', response)
         ElMessage.success('置顶申请已提交，请等待管理员审核')
       } catch (error) {
         console.error('置顶申请失败', error)

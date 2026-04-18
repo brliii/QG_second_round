@@ -45,3 +45,11 @@ export function adminDeleteLost(id) {
     method: 'delete'
   })
 }
+
+export function searchLostByDescription(description) {
+  return request({
+    url: '/lost/search',
+    method: 'get',
+    params: { description }
+  })
+}

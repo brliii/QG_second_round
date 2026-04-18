@@ -169,6 +169,7 @@ const handleSubmit = async () => {
       if (response.code === 200) {
         ElMessage.success('更新成功')
         itemId = route.query.id
+        console.log('更新失物，itemId:', itemId)
       } else {
         ElMessage.error(response.message || '更新失败')
         return
@@ -177,8 +178,10 @@ const handleSubmit = async () => {
       const response = await createLost(form)
       if (response.code === 200) {
         ElMessage.success('发布成功')
-        // 假设返回的数据中包含了创建的物品ID
+        // 从响应中提取物品ID
+        // 假设后端返回的是物品ID
         itemId = response.data
+        console.log('创建失物，response.data:', response.data, 'itemId:', itemId)
       } else {
         ElMessage.error(response.message || '发布失败')
         return
@@ -188,10 +191,12 @@ const handleSubmit = async () => {
     // 如果申请置顶，发送置顶申请
     if (form.applyTop) {
       try {
-        await applyTop({
+        console.log('发送置顶申请，itemId:', itemId, 'itemType: lost')
+        const response = await applyTop({
           itemId: itemId,
           itemType: 'lost'
         })
+        console.log('置顶申请响应:', response)
         ElMessage.success('置顶申请已提交，请等待管理员审核')
       } catch (error) {
         console.error('置顶申请失败', error)

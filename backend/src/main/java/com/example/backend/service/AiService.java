@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.entity.LostItem;
 import com.example.backend.entity.PickedItem;
 import com.example.backend.vo.PickedItemVo;
 import com.example.backend.vo.SearchResultVo;
@@ -11,4 +12,6 @@ public interface AiService {
     String generateItemDescription(String itemName, String userDescription);
     //AI根据用户描述智能查找失物
     List<PickedItem> searchBestMatches(String userDescription, List<PickedItem> candidates);
+    //AI根据用户描述智能查找拾物
+    List<LostItem> searchLostBestMatches(String userDescription, List<LostItem> candidates);
 }

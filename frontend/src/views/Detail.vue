@@ -35,6 +35,12 @@
               <el-button v-if="isPicked && isOwner" type="success" @click="regenerateAi">
                 重新生成AI描述
               </el-button>
+              <el-button v-if="isPicked && isOwner" type="info" @click="toggleClaimed">
+                {{ item.status === 1 ? '标记为未认领' : '标记为已认领' }}
+              </el-button>
+              <el-button v-if="!isPicked && isOwner" type="info" @click="toggleFound">
+                {{ item.status === 1 ? '标记为未找回' : '标记为已找回' }}
+              </el-button>
               <el-button @click="reportItem">举报</el-button>
             </div>
           </div>
@@ -56,8 +62,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getLostDetail, deleteLost } from '@/api/lost'
-import { getPickedDetail, regenerateAiDesc, deletePicked } from '@/api/picked'
+import { getLostDetail, deleteLost, updateLost } from '@/api/lost'
+import { getPickedDetail, regenerateAiDesc, deletePicked, updatePicked } from '@/api/picked'
 import { getCommentsByTarget } from '@/api/comment'
 import { createReport } from '@/api/report'
 import { useUserStore } from '@/stores/user'
@@ -212,6 +218,60 @@ const startChat = () => {
       userId: item.value.userId
     }
   })
+}
+
+const toggleClaimed = async () => {
+  try {
+    const response = await updatePicked(id, {
+      status: item.value.status === 1 ? 0 : 1
+    })
+    if (response.code === 200) {
+      item.value.status = item.value.status === 1 ? 0 : 1
+      ElMessage.success(item.value.status === 1 ? '标记为已认领成功' : '标记为未认领成功')
+      // 询问用户是否要返回首页查看更新后的状态
+      ElMessageBox.confirm('是否要返回首页查看更新后的状态？', '操作成功', {
+        confirmButtonText: '返回首页',
+        cancelButtonText: '留在当前页',
+        type: 'success'
+      }).then(() => {
+        router.push('/')
+      }).catch(() => {
+        // 用户选择留在当前页
+      })
+    } else {
+      ElMessage.error(response.message || '操作失败')
+    }
+  } catch (error) {
+    console.error('标记认领状态失败', error)
+    ElMessage.error('操作失败，请稍后重试')
+  }
+}
+
+const toggleFound = async () => {
+  try {
+    const response = await updateLost(id, {
+      status: item.value.status === 1 ? 0 : 1
+    })
+    if (response.code === 200) {
+      item.value.status = item.value.status === 1 ? 0 : 1
+      ElMessage.success(item.value.status === 1 ? '标记为已找回成功' : '标记为未找回成功')
+      // 询问用户是否要返回首页查看更新后的状态
+      ElMessageBox.confirm('是否要返回首页查看更新后的状态？', '操作成功', {
+        confirmButtonText: '返回首页',
+        cancelButtonText: '留在当前页',
+        type: 'success'
+      }).then(() => {
+        router.push('/')
+      }).catch(() => {
+        // 用户选择留在当前页
+      })
+    } else {
+      ElMessage.error(response.message || '操作失败')
+    }
+  } catch (error) {
+    console.error('标记找回状态失败', error)
+    ElMessage.error('操作失败，请稍后重试')
+  }
 }
 
 onMounted(() => {

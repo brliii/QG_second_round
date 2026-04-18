@@ -7,7 +7,11 @@
       <p class="item-time">{{ formatTime(item.lostTime || item.pickTime) }}</p>
       <p class="item-description">{{ truncateText(item.description, 50) }}</p>
       <div class="item-meta">
-        <span v-if="item.isTop" class="top-badge">置顶</span>
+        <div class="badges">
+          <span v-if="item.isTop" class="top-badge">置顶</span>
+          <span v-if="item.status === 1 && type === 'picked'" class="claimed-badge">已认领</span>
+          <span v-if="item.status === 1 && type === 'lost'" class="found-badge">已找回</span>
+        </div>
         <span class="time-ago">{{ timeAgo(item.createTime) }}</span>
       </div>
     </div>
@@ -114,8 +118,29 @@ const timeAgo = (time) => {
   margin-top: 12px;
 }
 
+.badges {
+  display: flex;
+  gap: 8px;
+}
+
 .top-badge {
   background: #ff4d4f;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.claimed-badge {
+  background: #52c41a;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.found-badge {
+  background: #1890ff;
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
