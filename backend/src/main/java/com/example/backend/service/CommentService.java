@@ -16,4 +16,6 @@ public interface CommentService {
     boolean markAsRead(Long commentId, Long userId);
     //根据id删除评论（需管理员权限）
     boolean deleteById(Long adminId, Long id);
+    //根据id获取评论详情
+    Comment getById(Long id);
 }

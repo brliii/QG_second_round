@@ -18,7 +18,10 @@ public interface PickedItemService {
     //根据ID查询
     PickedItem getById(Long id);
     //条件分页列表
-    Page<PickedItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size);
+    Page<PickedItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size, boolean includeAllStatus);
+    
+    //检查并更新过期的置顶物品
+    void checkAndUpdateExpiredTopItems();
     //根据id找
     List<PickedItem> getByUserId(Long userId);
     //根据关键词模糊查找用于AI排序前预筛选

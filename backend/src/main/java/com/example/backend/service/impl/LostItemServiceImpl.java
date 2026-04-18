@@ -11,6 +11,7 @@ import com.example.backend.service.LostItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -82,7 +83,10 @@ public class LostItemServiceImpl implements LostItemService {
     }
 
     @Override
-    public Page<LostItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size) {
+    public Page<LostItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size, boolean includeAllStatus) {
+        // 先检查并更新过期的置顶物品
+        checkAndUpdateExpiredTopItems();
+        
         Page<LostItem> pageObj = new Page<>(page, size);
         QueryWrapper<LostItem> wrapper = new QueryWrapper<>();
         if (location != null && !location.isEmpty()) {
@@ -97,7 +101,13 @@ public class LostItemServiceImpl implements LostItemService {
         if (endTime != null && !endTime.isEmpty()) {
             wrapper.le("lost_time", endTime);
         }
-        wrapper.eq("status", 0); //正常状态
+        if (!includeAllStatus) {
+            wrapper.eq("status", 0); //正常状态
+        } else {
+            wrapper.in("status", 0, 1); //包含正常和已找回状态，排除已删除
+        }
+        // 先按置顶状态排序，再按指定字段排序
+        wrapper.orderByDesc("is_top");
         if ("lostTime".equals(sortBy)) {
             wrapper.orderByDesc("lost_time");
         } else {
@@ -114,6 +124,9 @@ public class LostItemServiceImpl implements LostItemService {
     
     @Override
     public List<LostItem> searchByKeyword(String keyword) {
+        // 先检查并更新过期的置顶物品
+        checkAndUpdateExpiredTopItems();
+        
         QueryWrapper<LostItem> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 0); // 只查询正常状态的失物
         // 如果有关键词，先尝试关键词筛选（用于AI预筛选，减少候选集）
@@ -126,8 +139,24 @@ public class LostItemServiceImpl implements LostItemService {
                     .like("location", keyword)
             );
         }
+        // 先按置顶状态排序，再按创建时间排序
+        wrapper.orderByDesc("is_top");
         wrapper.orderByDesc("create_time");
         wrapper.last("limit 50"); // 增加limit，确保有足够的候选物品供AI排序
         return lostItemMapper.selectList(wrapper);
+    }
+    
+    @Override
+    public void checkAndUpdateExpiredTopItems() {
+        LocalDateTime now = LocalDateTime.now();
+        UpdateWrapper<LostItem> wrapper = new UpdateWrapper<>();
+        wrapper.eq("is_top", 1)
+               .lt("top_expire", now);
+        
+        LostItem update = new LostItem();
+        update.setIsTop(0);
+        update.setTopExpire(null);
+        
+        lostItemMapper.update(update, wrapper);
     }
 }

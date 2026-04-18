@@ -81,8 +81,17 @@ public class TopRequestController {
             if (user != null) {
                 vo.setUsername(user.getUsername());
             }
-            if (vo.getItemType() == null) {
-                vo.setItemType(0);
+            // 根据物品类型和物品ID查询物品名称
+            if (tr.getItemType() != null && tr.getItemId() != null) {
+                String itemName = null;
+                if (tr.getItemType() == 0) {
+                    // 失物
+                    itemName = lostItemService.getById(tr.getItemId()).getName();
+                } else if (tr.getItemType() == 1) {
+                    // 拾取
+                    itemName = pickedItemService.getById(tr.getItemId()).getName();
+                }
+                vo.setItemName(itemName);
             }
             voList.add(vo);
         }
@@ -124,5 +133,50 @@ public class TopRequestController {
 
         boolean success = topRequestService.approve(requestId, adminId, approveStatus);
         return success ? Result.success("处理成功") : Result.error(403, "无权操作或处理失败");
+    }
+
+    @PostMapping("/cancel")
+    public Result<String> cancel(@RequestBody TopRequestCreateDto dto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        if (userId == null) {
+            return Result.error(401, "未登录");
+        }
+
+        // 检查物品类型和所有权
+        boolean isOwner = false;
+        if (dto.getItemType() == 0) {
+            // 失物
+            isOwner = lostItemService.isOwner(userId, dto.getItemId());
+        } else if (dto.getItemType() == 1) {
+            // 拾取
+            isOwner = pickedItemService.isOwner(userId, dto.getItemId());
+        } else {
+            return Result.error(400, "无效的物品类型");
+        }
+
+        if (!isOwner) {
+            return Result.error(403, "物品不存在或不属于你");
+        }
+
+        // 取消置顶
+        if (dto.getItemType() == 0) {
+            // 失物
+            LostItem item = lostItemService.getById(dto.getItemId());
+            if (item != null) {
+                item.setIsTop(0);
+                item.setTopExpire(null);
+                lostItemService.adminUpdate(item);
+            }
+        } else if (dto.getItemType() == 1) {
+            // 拾取
+            PickedItem item = pickedItemService.getById(dto.getItemId());
+            if (item != null) {
+                item.setIsTop(0);
+                item.setTopExpire(null);
+                pickedItemService.adminUpdate(item);
+            }
+        }
+
+        return Result.success("置顶已取消");
     }
 }

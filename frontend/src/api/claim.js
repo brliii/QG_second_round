@@ -29,3 +29,11 @@ export function getMyClaims() {
     method: 'get'
   })
 }
+
+export function submitEvidence(data) {
+  return request({
+    url: '/claim/evidence',
+    method: 'put',
+    data
+  })
+}

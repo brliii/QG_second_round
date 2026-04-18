@@ -23,3 +23,11 @@ export function approveTopRequest(requestId, approveStatus) {
     params: { approveStatus }
   })
 }
+
+export function cancelTop(data) {
+  return request({
+    url: '/top/cancel',
+    method: 'post',
+    data
+  })
+}

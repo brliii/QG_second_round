@@ -12,6 +12,7 @@ public class ReportVo {
     private String reporterUsername;//举报者名
     private Integer targetType;
     private Long targetId;
+    private String targetInfo; //被举报对象信息
     private String reason;
     private Integer status;
     private LocalDateTime createTime;

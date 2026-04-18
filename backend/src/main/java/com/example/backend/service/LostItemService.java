@@ -18,7 +18,10 @@ public interface LostItemService {
     //根据ID查询
     LostItem getById(Long id);
     //条件分页列表
-    Page<LostItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size);
+    Page<LostItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size, boolean includeAllStatus);
+    
+    //检查并更新过期的置顶物品
+    void checkAndUpdateExpiredTopItems();
     //关键词搜索
     List<LostItem> searchByKeyword(String keyword);
     //判断失物发布者与当前用户是否同个

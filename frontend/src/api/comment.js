@@ -43,3 +43,10 @@ export function adminDeleteComment(id) {
     method: 'delete'
   })
 }
+
+export function getCommentDetail(id) {
+  return request({
+    url: `/comment/admin/detail/${id}`,
+    method: 'get'
+  })
+}

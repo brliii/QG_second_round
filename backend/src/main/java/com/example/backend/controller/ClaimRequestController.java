@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.common.Result;
+import com.example.backend.dto.ClaimEvidenceDto;
 import com.example.backend.dto.ClaimRequestCreateDto;
 import com.example.backend.dto.ClaimRequestProcessDto;
 import com.example.backend.entity.ClaimRequest;
@@ -106,5 +107,16 @@ public class ClaimRequestController {
             voList.add(vo);
         }
         return Result.success(voList);
+    }
+
+    //失主补充证据
+    @PutMapping("/evidence")
+    public Result<String> submitEvidence(@RequestBody ClaimEvidenceDto dto, HttpServletRequest request) {
+        Long claimantId = (Long) request.getAttribute("userId");
+        if (claimantId == null) {
+            return Result.error(401, "未登录");
+        }
+        boolean success = claimRequestService.submitEvidence(dto.getRequestId(), dto.getEvidence(), claimantId);
+        return success ? Result.success("证据已提交") : Result.error(400, "提交失败：可能无权限或申请不存在");
     }
 }

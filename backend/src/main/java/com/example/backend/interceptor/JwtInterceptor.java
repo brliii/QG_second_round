@@ -22,6 +22,28 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        // 对于拾取物详情页，特殊处理：允许未登录用户访问公共拾取物，但需要验证管理员身份
+        if (request.getRequestURI().startsWith("/picked/detail/")) {
+            System.out.println("处理拾取物详情页请求");
+            // 验证Authorization头
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                System.out.println("token:" + token);//验证
+                if (jwtUtil.validateToken(token)) {
+                    Long userId = jwtUtil.getUserIdFromToken(token);
+                    String username = jwtUtil.getUsernameFromToken(token);
+                    Integer role = jwtUtil.getRoleFromToken(token);
+                    System.out.println("role from token: " + role);
+                    request.setAttribute("userId", userId);//这也是一个map，所以这里先贴标签，到了controller里面直接解析就行了
+                    request.setAttribute("username", username);//这里先从token来设置这三个值，是因为前端在操作时一般不需要输入这三个数据，再有就是可以统一管理加强保密
+                    request.setAttribute("role", role);
+                }
+            }
+            // 无论是否有token，都允许继续访问，由controller来处理权限
+            return true;
+        }
+
         //验证Authorization头
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

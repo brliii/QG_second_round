@@ -97,6 +97,10 @@ public class UserServiceImpl implements UserService{
         if(user==null){
             return null;
         }
+        // 检查用户是否被封禁
+        if (user.getStatus() == 1) {
+            return null;
+        }
         if(!passwordEncoder.matches(password,user.getPassword())){
             return null;
         }

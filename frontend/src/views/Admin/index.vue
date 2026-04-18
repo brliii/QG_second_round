@@ -103,8 +103,8 @@
             <el-table-column prop="description" label="描述" width="200" show-overflow-tooltip />
             <el-table-column prop="status" label="状态" width="100">
               <template #default="scope">
-                <el-tag :type="scope.row.status === 0 ? 'warning' : 'success'">
-                  {{ itemType === 'lost' ? (scope.row.status === 0 ? '未找回' : '已找回') : (scope.row.status === 0 ? '未认领' : '已认领') }}
+                <el-tag :type="scope.row.status === 2 ? 'info' : (scope.row.status === 0 ? 'warning' : 'success')">
+                  {{ scope.row.status === 2 ? '已删除' : (itemType === 'lost' ? (scope.row.status === 0 ? '未找回' : '已找回') : (scope.row.status === 0 ? '未认领' : '已认领')) }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -118,6 +118,7 @@
                 <el-button
                   type="danger"
                   size="small"
+                  :disabled="scope.row.status === 2"
                   @click="deleteItem(scope.row.id)"
                 >
                   删除
@@ -137,7 +138,8 @@
                 {{ getReportTypeText(scope.row.reportType) }}
               </template>
             </el-table-column>
-            <el-table-column prop="reportedId" label="被举报ID" width="120" />
+            <el-table-column prop="targetId" label="被举报ID" width="120" />
+            <el-table-column prop="targetInfo" label="被举报对象" width="200" show-overflow-tooltip />
             <el-table-column prop="reason" label="举报原因" width="200" show-overflow-tooltip />
             <el-table-column prop="status" label="状态" width="100">
               <template #default="scope">
@@ -151,8 +153,11 @@
                 {{ formatTime(scope.row.createTime) }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="200">
+            <el-table-column label="操作" width="250">
               <template #default="scope">
+                <el-button type="primary" size="small" @click="viewReportDetail(scope.row)" style="margin-right: 8px">
+                  查看详情
+                </el-button>
                 <el-button-group v-if="scope.row.status === 0">
                   <el-button type="success" size="small" @click="handleReport(scope.row.id, 1)">
                     忽略
@@ -211,6 +216,104 @@
       </div>
     </div>
   </div>
+
+  <!-- 举报详情对话框 -->
+  <el-dialog
+    v-model="reportDetailDialogVisible"
+    :title="`举报详情 - ${selectedReport ? getReportTypeText(selectedReport.reportType) : ''}`"
+    width="600px"
+  >
+    <div v-if="selectedReport">
+      <el-form label-width="80px">
+        <el-form-item label="举报人">
+          <span>{{ selectedReport.reporterUsername }}</span>
+        </el-form-item>
+        <el-form-item label="举报类型">
+          <span>{{ getReportTypeText(selectedReport.reportType) }}</span>
+        </el-form-item>
+        <el-form-item label="被举报ID">
+          <span>{{ selectedReport.reportedId }}</span>
+        </el-form-item>
+        <el-form-item label="被举报对象">
+          <span>{{ selectedReport.targetInfo || '未知' }}</span>
+        </el-form-item>
+        <el-form-item label="举报原因">
+          <span>{{ selectedReport.reason }}</span>
+        </el-form-item>
+        <el-form-item label="举报时间">
+          <span>{{ formatTime(selectedReport.createTime) }}</span>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-tag :type="getReportStatusType(selectedReport.status)">
+            {{ getReportStatusText(selectedReport.status) }}
+          </el-tag>
+        </el-form-item>
+        
+        <!-- 详细信息部分 -->
+        <el-form-item label="详细信息">
+          <el-skeleton :loading="reportDetailLoading" animated>
+            <template #template>
+              <el-skeleton-item variant="p" style="margin-bottom: 16px" />
+              <el-skeleton-item variant="p" style="margin-bottom: 16px" />
+              <el-skeleton-item variant="p" />
+            </template>
+            <div v-if="!reportDetailLoading">
+              <!-- 失物详情 -->
+              <div v-if="selectedReport.reportType === 0 && reportDetailData">
+                <el-descriptions :column="1" border>
+                  <el-descriptions-item label="物品名称">{{ reportDetailData.name }}</el-descriptions-item>
+                  <el-descriptions-item label="丢失地点">{{ reportDetailData.location }}</el-descriptions-item>
+                  <el-descriptions-item label="丢失时间">{{ formatTime(reportDetailData.lostTime) }}</el-descriptions-item>
+                  <el-descriptions-item label="物品描述">{{ reportDetailData.description }}</el-descriptions-item>
+                  <el-descriptions-item label="联系方式">{{ reportDetailData.contact }}</el-descriptions-item>
+                  <el-descriptions-item label="发布时间">{{ formatTime(reportDetailData.createTime) }}</el-descriptions-item>
+                </el-descriptions>
+              </div>
+              
+              <!-- 拾取详情 -->
+              <div v-else-if="selectedReport.reportType === 1 && reportDetailData">
+                <el-descriptions :column="1" border>
+                  <el-descriptions-item label="物品名称">{{ reportDetailData.name }}</el-descriptions-item>
+                  <el-descriptions-item label="拾取地点">{{ reportDetailData.location }}</el-descriptions-item>
+                  <el-descriptions-item label="拾取时间">{{ formatTime(reportDetailData.pickTime) }}</el-descriptions-item>
+                  <el-descriptions-item label="物品描述">{{ reportDetailData.description }}</el-descriptions-item>
+                  <el-descriptions-item label="联系方式">{{ reportDetailData.contact }}</el-descriptions-item>
+                  <el-descriptions-item label="发布时间">{{ formatTime(reportDetailData.createTime) }}</el-descriptions-item>
+                </el-descriptions>
+              </div>
+              
+              <!-- 评论详情 -->
+              <div v-else-if="selectedReport.reportType === 2 && reportDetailData">
+                <el-descriptions :column="1" border>
+                  <el-descriptions-item label="评论内容">{{ reportDetailData.content }}</el-descriptions-item>
+                  <el-descriptions-item label="评论者">{{ reportDetailData.fromUsername || '未知' }}</el-descriptions-item>
+                  <el-descriptions-item label="接收者">{{ reportDetailData.toUsername || '无' }}</el-descriptions-item>
+                  <el-descriptions-item label="评论时间">{{ formatTime(reportDetailData.createTime) }}</el-descriptions-item>
+                </el-descriptions>
+              </div>
+              
+              <!-- 用户详情 -->
+              <div v-else-if="selectedReport.reportType === 3">
+                <el-descriptions :column="1" border>
+                  <el-descriptions-item label="用户名">{{ selectedReport.targetInfo || '未知' }}</el-descriptions-item>
+                  <el-descriptions-item label="用户ID">{{ selectedReport.reportedId }}</el-descriptions-item>
+                </el-descriptions>
+              </div>
+              
+              <!-- 无详情 -->
+              <div v-else>
+                <el-alert
+                  title="无法获取详细信息"
+                  type="warning"
+                  show-icon
+                />
+              </div>
+            </div>
+          </el-skeleton>
+        </el-form-item>
+      </el-form>
+    </div>
+  </el-dialog>
 </template>
 
 <script setup>
@@ -219,14 +322,21 @@ import { ElMessage } from 'element-plus'
 import { DataLine, User, DocumentCopy, Warning, Star } from '@element-plus/icons-vue'
 import { getStatistics } from '@/api/admin'
 import { banUser as banUserApi, getUserList } from '@/api/user'
-import { getLostList, deleteLost } from '@/api/lost'
-import { getPickedList, deletePicked } from '@/api/picked'
+import { getLostList, deleteLost, getLostDetail } from '@/api/lost'
+import { getPickedList, deletePicked, getPickedDetail } from '@/api/picked'
 import { getPendingReports, handleReport as handleReportApi } from '@/api/report'
 import { getPendingTopRequests, approveTopRequest as approveTopRequestApi } from '@/api/top'
+import { getCommentDetail } from '@/api/comment'
 import NavBar from '@/components/NavBar.vue'
 
 const activeMenu = ref('statistics')
 const itemType = ref('lost')
+
+// 举报详情相关状态
+const reportDetailDialogVisible = ref(false)
+const selectedReport = ref(null)
+const reportDetailData = ref(null)
+const reportDetailLoading = ref(false)
 
 const statistics = ref({
   totalPosts: 0,
@@ -316,12 +426,12 @@ const loadUsers = async () => {
 const loadItems = async () => {
   try {
     if (itemType.value === 'lost') {
-      const response = await getLostList({ page: 1, size: 100 })
+      const response = await getLostList({ page: 1, size: 100, includeAllStatus: true })
       if (response.code === 200 && response.data) {
         items.value = response.data.records || []
       }
     } else {
-      const response = await getPickedList({ page: 1, size: 100 })
+      const response = await getPickedList({ page: 1, size: 100, includeAllStatus: true })
       if (response.code === 200 && response.data) {
         items.value = response.data.records || []
       }
@@ -343,6 +453,8 @@ const loadReports = async () => {
         reporterUsername: report.reporterUsername || '未知',
         reportType: report.targetType ?? 0, // 使用 targetType 而不是 reportType
         reportedId: report.targetId ?? 0, // 使用 targetId 而不是 reportedId
+        targetId: report.targetId ?? 0, // 保留 targetId 字段
+        targetInfo: report.targetInfo || '', // 添加 targetInfo 字段
         reason: report.reason || '',
         status: report.status || 0,
         createTime: report.createTime || new Date().toISOString()
@@ -436,6 +548,45 @@ const handleReport = async (reportId, status) => {
   } catch (error) {
     console.error('处理失败', error)
     ElMessage.error('处理失败')
+  }
+}
+
+const viewReportDetail = async (report) => {
+  try {
+    selectedReport.value = report
+    reportDetailData.value = null
+    reportDetailLoading.value = true
+    
+    // 根据举报类型加载相关数据
+    if (report.reportType === 0) {
+      // 失物
+      const response = await getLostDetail(report.reportedId)
+      if (response.code === 200 && response.data) {
+        reportDetailData.value = response.data
+      }
+    } else if (report.reportType === 1) {
+      // 拾取
+      const response = await getPickedDetail(report.reportedId)
+      if (response.code === 200 && response.data) {
+        reportDetailData.value = response.data
+      }
+    } else if (report.reportType === 2) {
+      // 评论
+      const response = await getCommentDetail(report.reportedId)
+      if (response.code === 200 && response.data) {
+        reportDetailData.value = response.data
+      }
+    } else if (report.reportType === 3) {
+      // 用户 - 这里可以添加获取用户详情的逻辑
+      // 暂时使用 targetInfo 字段显示用户名
+    }
+    
+    reportDetailDialogVisible.value = true
+  } catch (error) {
+    console.error('获取举报详情失败', error)
+    ElMessage.error('获取详情失败')
+  } finally {
+    reportDetailLoading.value = false
   }
 }
 

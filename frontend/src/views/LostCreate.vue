@@ -82,7 +82,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { createLost, updateLost, getLostDetail } from '@/api/lost'
-import { applyTop } from '@/api/top'
+import { applyTop, cancelTop } from '@/api/top'
 import { uploadImage } from '@/api/upload'
 import NavBar from '@/components/NavBar.vue'
 
@@ -163,9 +163,17 @@ const handleSubmit = async () => {
       }
     }
 
+    // 保存原始的isTop和topExpire值
+    const originalIsTop = form.isTop
+    const originalTopExpire = form.topExpire
+
     let itemId
     if (isEdit.value) {
-      const response = await updateLost(route.query.id, form)
+      // 移除applyTop字段，因为后端不需要这个字段
+      const updateData = { ...form }
+      delete updateData.applyTop
+      
+      const response = await updateLost(route.query.id, updateData)
       if (response.code === 200) {
         ElMessage.success('更新成功')
         itemId = route.query.id
@@ -202,6 +210,24 @@ const handleSubmit = async () => {
         console.error('置顶申请失败', error)
         // 置顶申请失败不影响物品发布
       }
+    } else if (isEdit.value) {
+      // 如果是编辑且取消置顶申请，发送取消置顶请求
+      try {
+        console.log('取消置顶，itemId:', itemId, 'itemType: 0 (lost)')
+        const response = await cancelTop({
+          itemId: itemId,
+          itemType: 0
+        })
+        console.log('取消置顶响应:', response)
+        if (response.code === 200) {
+          ElMessage.success('置顶已取消')
+        } else {
+          ElMessage.error(response.message || '取消置顶失败')
+        }
+      } catch (error) {
+        console.error('取消置顶失败', error)
+        // 取消置顶失败不影响物品更新
+      }
     }
 
     router.push('/')
@@ -222,6 +248,8 @@ onMounted(() => {
       if (data.imageUrl) {
         imagePreview.value = data.imageUrl
       }
+      // 重置applyTop为false，因为它只是用于申请置顶
+      form.applyTop = false
     })
   }
 })

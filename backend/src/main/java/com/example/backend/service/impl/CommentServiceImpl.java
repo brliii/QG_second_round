@@ -67,4 +67,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         //这块是直接物理删除，因为表里没有status字段
         return commentMapper.deleteById(id) > 0;
     }
+
+    @Override
+    public Comment getById(Long id) {
+        return commentMapper.selectById(id);
+    }
 }

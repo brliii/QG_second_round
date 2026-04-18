@@ -65,6 +65,29 @@ public class ReportController {
             if (reporter != null) {
                 vo.setReporterUsername(reporter.getUsername());
             }
+            
+            // 添加被举报对象信息
+            if (r.getTargetType() != null && r.getTargetId() != null) {
+                String targetInfo = null;
+                if (r.getTargetType() == 0) {
+                    // 失物
+                    targetInfo = lostItemService.getById(r.getTargetId()).getName();
+                } else if (r.getTargetType() == 1) {
+                    // 拾取
+                    targetInfo = pickedItemService.getById(r.getTargetId()).getName();
+                } else if (r.getTargetType() == 2) {
+                    // 评论
+                    targetInfo = commentService.getById(r.getTargetId()).getContent();
+                } else if (r.getTargetType() == 3) {
+                    // 用户
+                    User targetUser = userService.getCurrentUser(r.getTargetId());
+                    if (targetUser != null) {
+                        targetInfo = targetUser.getUsername();
+                    }
+                }
+                vo.setTargetInfo(targetInfo);
+            }
+            
             voList.add(vo);
         }
         return Result.success(voList);

@@ -35,7 +35,6 @@ public class WebConfig implements WebMvcConfigurer{//启动时立刻执行
                         "/lost/list",
                         "/picked/list",
                         "/lost/detail/**",
-                        "/picked/detail/**",
                         "/comment/target",
                         "/upload/**",
                         "/uploads/**"

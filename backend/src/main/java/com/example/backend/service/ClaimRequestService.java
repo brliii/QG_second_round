@@ -14,6 +14,8 @@ public interface ClaimRequestService {
     ClaimRequest getById(Long id);
     //处理申请（同意/拒绝/补充证据）
     boolean process(Long requestId, Integer status, String comment, Long pickerId);
+    //补充证据（失主补充证据后提交）
+    boolean submitEvidence(Long requestId, String evidence, Long claimantId);
     //生成取件码（同意时调用）
     String generatePickupCode();
 }

@@ -132,8 +132,10 @@ const fetchList = async () => {
         list.value = response.data.records || []
         // 优先按置顶状态排序，再按创建时间排序
         list.value.sort((a, b) => {
-          if (a.isTop && !b.isTop) return -1
-          if (!a.isTop && b.isTop) return 1
+          const aIsTop = a.isTop === 1
+          const bIsTop = b.isTop === 1
+          if (aIsTop && !bIsTop) return -1
+          if (!aIsTop && bIsTop) return 1
           return new Date(b.createTime) - new Date(a.createTime)
         })
         total.value = response.data.total || 0
@@ -154,6 +156,14 @@ const fetchList = async () => {
         const response = await searchPickedByDescription(keyword.value)
         if (response.code === 200 && response.data) {
           list.value = response.data || []
+          // 优先按置顶状态排序，再按创建时间排序
+          list.value.sort((a, b) => {
+            const aIsTop = a.isTop === 1
+            const bIsTop = b.isTop === 1
+            if (aIsTop && !bIsTop) return -1
+            if (!aIsTop && bIsTop) return 1
+            return new Date(b.createTime) - new Date(a.createTime)
+          })
           total.value = list.value.length
           isAiSearch.value = true
         } else {
@@ -184,8 +194,10 @@ const fetchList = async () => {
           list.value = response.data.records || []
           // 优先按置顶状态排序，再按创建时间排序
           list.value.sort((a, b) => {
-            if (a.isTop && !b.isTop) return -1
-            if (!a.isTop && b.isTop) return 1
+            const aIsTop = a.isTop === 1
+            const bIsTop = b.isTop === 1
+            if (aIsTop && !bIsTop) return -1
+            if (!aIsTop && bIsTop) return 1
             return new Date(b.createTime) - new Date(a.createTime)
           })
           total.value = response.data.total || 0
@@ -222,6 +234,14 @@ const doAiSearch = async () => {
     }
     if (response.code === 200 && response.data) {
       list.value = response.data || []
+      // 优先按置顶状态排序，再按创建时间排序
+      list.value.sort((a, b) => {
+        const aIsTop = a.isTop === 1
+        const bIsTop = b.isTop === 1
+        if (aIsTop && !bIsTop) return -1
+        if (!aIsTop && bIsTop) return 1
+        return new Date(b.createTime) - new Date(a.createTime)
+      })
       total.value = list.value.length
       isAiSearch.value = true
     } else {

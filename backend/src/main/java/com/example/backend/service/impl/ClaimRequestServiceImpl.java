@@ -60,7 +60,7 @@ public class ClaimRequestServiceImpl extends ServiceImpl<ClaimRequestMapper,Clai
             return false;
         }
         //检查申请状态
-        if(request.getStatus()!=0){
+        if(request.getStatus()!=0 && request.getStatus()!=4){
             return false;
         }
 
@@ -73,6 +73,26 @@ public class ClaimRequestServiceImpl extends ServiceImpl<ClaimRequestMapper,Clai
             request.setExpireTime(LocalDateTime.now().plusHours(24));
         }
 
+        return claimRequestMapper.updateById(request)>0;
+    }
+
+    @Override
+    public boolean submitEvidence(Long requestId, String evidence, Long claimantId) {
+        ClaimRequest request = claimRequestMapper.selectById(requestId);
+        if(request==null){
+            return false;
+        }
+        //校验当前用户是否为申请人
+        if(!request.getClaimantId().equals(claimantId)){
+            return false;
+        }
+        //检查申请状态必须为要求补充证据
+        if(request.getStatus()!=3){
+            return false;
+        }
+        request.setEvidence(evidence);
+        request.setStatus(4);//已补充证据
+        request.setUpdateTime(LocalDateTime.now());
         return claimRequestMapper.updateById(request)>0;
     }
 

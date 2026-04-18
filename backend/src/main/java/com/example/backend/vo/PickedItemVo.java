@@ -16,6 +16,8 @@ public class PickedItemVo {
     private String contact;
     private Integer visibilityPreset;
     private Integer enableClaimWorkflow;
+    private Integer isTop;
+    private LocalDateTime topExpire;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

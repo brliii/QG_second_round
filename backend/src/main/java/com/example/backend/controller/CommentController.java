@@ -113,4 +113,27 @@ public class CommentController {
         boolean success = commentService.deleteById(adminId, id);
         return success ? Result.success("删除成功") : Result.error(403, "无权操作或删除失败");
     }
+
+    @GetMapping("/admin/detail/{id}")
+    public Result<CommentVo> getCommentDetail(@PathVariable Long id, HttpServletRequest request) {
+        Long adminId = (Long) request.getAttribute("userId");
+        if (adminId == null) {
+            return Result.error(401, "未登录");
+        }
+        Comment comment = commentService.getById(id);
+        if (comment == null) {
+            return Result.error(404, "评论不存在");
+        }
+        CommentVo vo = ConvertUtil.convert(comment, CommentVo.class);
+        // 补充留言者和接收者用户名
+        User fromUser = userService.getCurrentUser(comment.getFromUserId());
+        if (fromUser != null) {
+            vo.setFromUsername(fromUser.getUsername());
+        }
+        User toUser = userService.getCurrentUser(comment.getToUserId());
+        if (toUser != null) {
+            vo.setToUsername(toUser.getUsername());
+        }
+        return Result.success(vo);
+    }
 }

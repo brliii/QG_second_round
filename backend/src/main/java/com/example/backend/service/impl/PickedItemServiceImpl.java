@@ -1,6 +1,7 @@
 package com.example.backend.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.backend.common.Result;
 import com.example.backend.entity.PickedItem;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.spi.CurrencyNameProvider;
 
@@ -90,7 +92,10 @@ public class PickedItemServiceImpl implements PickedItemService {
     }
 
     @Override
-    public Page<PickedItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size) {
+    public Page<PickedItem> pageByCondition(String location, String name, String startTime, String endTime, String sortBy, int page, int size, boolean includeAllStatus) {
+        // 先检查并更新过期的置顶物品
+        checkAndUpdateExpiredTopItems();
+        
         Page<PickedItem> pageObj = new Page<>(page, size);
         QueryWrapper<PickedItem> wrapper = new QueryWrapper<>();
         if (location != null && !location.isEmpty()) {
@@ -105,7 +110,13 @@ public class PickedItemServiceImpl implements PickedItemService {
         if (endTime != null && !endTime.isEmpty()) {
             wrapper.le("pick_time", endTime);
         }
-        wrapper.eq("status", 0);
+        if (!includeAllStatus) {
+            wrapper.eq("status", 0);
+        } else {
+            wrapper.in("status", 0, 1); //包含正常和已认领状态，排除已删除
+        }
+        // 先按置顶状态排序，再按指定字段排序
+        wrapper.orderByDesc("is_top");
         if ("pickTime".equals(sortBy)) {
             wrapper.orderByDesc("pick_time");
         } else {
@@ -123,6 +134,9 @@ public class PickedItemServiceImpl implements PickedItemService {
 
     @Override
     public List<PickedItem> searchByKeywords(String keyword) {
+        // 先检查并更新过期的置顶物品
+        checkAndUpdateExpiredTopItems();
+        
         QueryWrapper<PickedItem> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 0);
         // 如果有关键词，先尝试关键词筛选（用于AI预筛选，减少候选集）
@@ -133,6 +147,8 @@ public class PickedItemServiceImpl implements PickedItemService {
                     .like("description", keyword)
             );
         }
+        // 先按置顶状态排序，再按创建时间排序
+        wrapper.orderByDesc("is_top");
         wrapper.orderByDesc("create_time");
         wrapper.last("limit 50"); // 增加limit，确保有足够的候选物品供AI排序
         return pickedItemMapper.selectList(wrapper);
@@ -140,8 +156,13 @@ public class PickedItemServiceImpl implements PickedItemService {
 
     @Override
     public List<PickedItem> getAvailableItems(int limit) {
+        // 先检查并更新过期的置顶物品
+        checkAndUpdateExpiredTopItems();
+        
         QueryWrapper<PickedItem> wrapper = new QueryWrapper<>();
         wrapper.eq("status", 0)
+                // 先按置顶状态排序，再按创建时间排序
+                .orderByDesc("is_top")
                 .orderByDesc("create_time")
                 .last("limit " + limit);
         return pickedItemMapper.selectList(wrapper);
@@ -156,5 +177,19 @@ public class PickedItemServiceImpl implements PickedItemService {
     public boolean isOwner(Long userId, Long pickedItemId) {
         PickedItem pickedItem = pickedItemMapper.selectById(pickedItemId);
         return pickedItem != null && pickedItem.getUserId().equals(userId);
+    }
+    
+    @Override
+    public void checkAndUpdateExpiredTopItems() {
+        LocalDateTime now = LocalDateTime.now();
+        UpdateWrapper<PickedItem> wrapper = new UpdateWrapper<>();
+        wrapper.eq("is_top", 1)
+               .lt("top_expire", now);
+        
+        PickedItem update = new PickedItem();
+        update.setIsTop(0);
+        update.setTopExpire(null);
+        
+        pickedItemMapper.update(update, wrapper);
     }
 }

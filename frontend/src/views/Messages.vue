@@ -24,7 +24,10 @@
         <div v-if="activeConversation" class="chat-window">
           <div class="chat-header">
             <h3>{{ activeConversation.otherUser.username }}</h3>
-            <el-button type="text" @click="closeConversation">关闭</el-button>
+            <div class="chat-header-actions">
+              <el-button type="text" @click="reportUser(activeConversation.otherUser.id)">举报用户</el-button>
+              <el-button type="text" @click="closeConversation">关闭</el-button>
+            </div>
           </div>
           <div class="chat-messages">
             <div v-for="message in activeConversation.messages" :key="message.id" :class="['message-item', message.senderId === userStore.userInfo.id ? 'my-message' : 'other-message']">
@@ -49,9 +52,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { getConversations, getOrCreateConversation, sendMessage as sendMessageApi } from '@/api/message'
+import { createReport } from '@/api/report'
 import NavBar from '@/components/NavBar.vue'
 
 const userStore = useUserStore()
@@ -90,6 +94,31 @@ const openConversation = (conversation) => {
 
 const closeConversation = () => {
   activeConversation.value = null
+}
+
+const reportUser = async (userId) => {
+  try {
+    const { value: reason } = await ElMessageBox.prompt('请输入举报原因', '举报用户', {
+      confirmButtonText: '提交',
+      cancelButtonText: '取消',
+      inputPattern: /\S/,
+      inputErrorMessage: '举报原因不能为空'
+    })
+
+    const response = await createReport({
+      targetType: 3, // 3 表示用户
+      targetId: userId,
+      reason
+    })
+
+    if (response.code === 200) {
+      ElMessage.success('举报成功，等待管理员处理')
+    } else {
+      ElMessage.error(response.message || '举报失败')
+    }
+  } catch (err) {
+    // 用户取消
+  }
 }
 
 const sendMessage = async () => {
@@ -268,6 +297,11 @@ onMounted(async () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.chat-header-actions {
+  display: flex;
+  gap: 12px;
 }
 
 .chat-header h3 {

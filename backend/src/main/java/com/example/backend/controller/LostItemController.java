@@ -86,8 +86,9 @@ public class LostItemController {
     public Result<Page<LostItemVo>> list(
             @RequestParam(required = false) String location, @RequestParam(required = false) String name, @RequestParam(required = false) String startTime, @RequestParam(required = false) String endTime,//不一定都会传入，筛选的时候可以不传入则全选，也可只传入一个
             @RequestParam(defaultValue = "createTime") String sortBy,
-            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "4") int size) {
-        Page<LostItem> pageResult = lostItemService.pageByCondition(location, name, startTime, endTime, sortBy, page, size);
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "4") int size,
+            @RequestParam(defaultValue = "false") boolean includeAllStatus) {
+        Page<LostItem> pageResult = lostItemService.pageByCondition(location, name, startTime, endTime, sortBy, page, size, includeAllStatus);
         Page<LostItemVo> voPage = ConvertUtil.convertPage(pageResult, LostItemVo.class);
         return Result.success(voPage);
     }

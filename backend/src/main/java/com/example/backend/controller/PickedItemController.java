@@ -131,18 +131,32 @@ public class PickedItemController {
         //获取当前用户信息（可能未登录）
         Long currentUserId = (Long) request.getAttribute("userId");
         Integer currentRole = (Integer) request.getAttribute("role");
+        System.out.println("Detail request - currentUserId: " + currentUserId + ", currentRole: " + currentRole);
+        
         boolean isOwner = currentUserId != null && currentUserId.equals(item.getUserId());
         boolean isAdmin = currentRole != null && currentRole == 1;
+        System.out.println("Detail request - isOwner: " + isOwner + ", isAdmin: " + isAdmin);
+        
         //转换为VO
         PickedItemVo vo = ConvertUtil.convert(item, PickedItemVo.class);
 
         //如果是发布者本人或管理员，直接返回完整信息
         if (isOwner || isAdmin) {
+            System.out.println("Detail request - Returning full info for owner or admin");
             return Result.success(vo);
         }
 
         //非本人且非管理员，才根据 visibility_preset 过滤
         VisibilityPresetEnum presetEnum = VisibilityPresetEnum.fromCode(item.getVisibilityPreset());
+        System.out.println("Detail request - Visibility preset: " + presetEnum);
+        
+        // 非管理员且非发布者，根据可见性设置返回不同信息
+        if (presetEnum == VisibilityPresetEnum.OWNER_ONLY) {
+            // 仅发布者可见，非发布者拒绝访问
+            System.out.println("Detail request - Returning 403 for OWNER_ONLY");
+            return Result.error(403, "该物品仅发布者可见");
+        }
+        
         switch (presetEnum) {
             case HIDE_CONTACT:
                 vo.setContact(null);
@@ -153,8 +167,6 @@ public class PickedItemController {
                     vo.setDescription(null);
                 }
                 break;
-            case OWNER_ONLY:
-                return Result.error(403, "该物品仅发布者可见");
             default: //PUBLIC
                 break;
         }
@@ -167,8 +179,9 @@ public class PickedItemController {
     public Result<Page<PickedItemVo>> list(
             @RequestParam(required = false) String location, @RequestParam(required = false) String name, @RequestParam(required = false) String startTime, @RequestParam(required = false) String endTime,//不一定都会传入，筛选的时候可以不传入则全选，也可只传入一个
             @RequestParam(defaultValue = "createTime") String sortBy,
-            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "4") int size) {
-        Page<PickedItem> pageResult = pickedItemService.pageByCondition(location, name, startTime, endTime, sortBy, page, size);
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "4") int size,
+            @RequestParam(defaultValue = "false") boolean includeAllStatus) {
+        Page<PickedItem> pageResult = pickedItemService.pageByCondition(location, name, startTime, endTime, sortBy, page, size, includeAllStatus);
         Page<PickedItemVo> voPage = ConvertUtil.convertPage(pageResult, PickedItemVo.class);
         return Result.success(voPage);
     }

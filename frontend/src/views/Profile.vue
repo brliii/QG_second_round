@@ -142,6 +142,8 @@
                       <div class="claim-info">
                         <p><strong>申请时间:</strong> {{ formatTime(claim.createTime) }}</p>
                         <p v-if="claim.pickerComment"><strong>处理意见:</strong> {{ claim.pickerComment }}</p>
+                        <p v-if="claim.status === 3"><strong>证据要求:</strong> {{ claim.pickerComment }}</p>
+                        <p v-if="claim.evidence"><strong>已补充证据:</strong> {{ claim.evidence }}</p>
                         <p v-if="claim.status === 1 && claim.pickupCode">
                           <strong>取件码:</strong>
                           <span class="claim-code">{{ claim.pickupCode }}</span>
@@ -149,6 +151,11 @@
                             复制
                           </el-button>
                         </p>
+                        <div v-if="claim.status === 3" class="claim-actions">
+                          <el-button type="primary" size="small" @click="submitClaimEvidence(claim)">
+                            补充证据
+                          </el-button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -169,6 +176,7 @@
                         <p><strong>申请人:</strong> {{ claim.claimantUsername }}</p>
                         <p><strong>申请时间:</strong> {{ formatTime(claim.createTime) }}</p>
                         <p><strong>验证答案:</strong> {{ claim.verifyAnswer }}</p>
+                        <p v-if="claim.evidence"><strong>补充证据:</strong> {{ claim.evidence }}</p>
                         <p v-if="claim.pickerComment"><strong>处理意见:</strong> {{ claim.pickerComment }}</p>
                         <p v-if="claim.status === 1 && claim.pickupCode">
                           <strong>取件码:</strong>
@@ -183,6 +191,20 @@
                           </el-button>
                           <el-button type="danger" size="small" @click="rejectClaim(claim.id)">
                             拒绝
+                          </el-button>
+                          <el-button type="warning" size="small" @click="requestEvidence(claim.id)">
+                            要求补充证据
+                          </el-button>
+                        </div>
+                        <div v-if="claim.status === 4" class="claim-actions">
+                          <el-button type="primary" size="small" @click="approveClaim(claim.id)">
+                            同意
+                          </el-button>
+                          <el-button type="danger" size="small" @click="rejectClaim(claim.id)">
+                            拒绝
+                          </el-button>
+                          <el-button type="warning" size="small" @click="requestEvidence(claim.id)">
+                            要求补充证据
                           </el-button>
                         </div>
                       </div>
@@ -200,12 +222,12 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { getLostList } from '@/api/lost'
 import { getPickedList } from '@/api/picked'
-import { getMyClaims, getClaimsByPicker, processClaim } from '@/api/claim'
+import { getMyClaims, getClaimsByPicker, processClaim, submitEvidence } from '@/api/claim'
 import { uploadImage } from '@/api/upload'
 import NavBar from '@/components/NavBar.vue'
 import ItemCard from '@/components/ItemCard.vue'
@@ -460,11 +482,55 @@ const rejectClaim = async (claimId) => {
   }
 }
 
+const requestEvidence = async (claimId) => {
+  try {
+    const response = await processClaim(claimId, {
+      status: 3,
+      comment: '请补充更多证据'
+    })
+    if (response.code === 200) {
+      ElMessage.success('已要求补充证据')
+      loadReceivedClaims()
+    } else {
+      ElMessage.error(response.message || '操作失败')
+    }
+  } catch (error) {
+    ElMessage.error('操作失败')
+  }
+}
+
+const submitClaimEvidence = async (claim) => {
+  try {
+    const { value: evidence } = await ElMessageBox.prompt('请输入补充的证据', '补充证据', {
+      confirmButtonText: '提交',
+      cancelButtonText: '取消',
+      inputPattern: /\S/,
+      inputErrorMessage: '证据不能为空'
+    })
+
+    const response = await submitEvidence({
+      requestId: claim.id,
+      evidence: evidence
+    })
+
+    if (response.code === 200) {
+      ElMessage.success('证据已提交')
+      loadMyClaims()
+    } else {
+      ElMessage.error(response.message || '提交失败')
+    }
+  } catch (err) {
+    // 用户取消
+  }
+}
+
 const getClaimStatusType = (status) => {
   switch (status) {
     case 0: return 'warning'
     case 1: return 'success'
     case 2: return 'danger'
+    case 3: return 'warning'
+    case 4: return 'info'
     default: return ''
   }
 }
@@ -474,6 +540,8 @@ const getClaimStatusText = (status) => {
     case 0: return '待审核'
     case 1: return '已通过'
     case 2: return '已拒绝'
+    case 3: return '要求补充证据'
+    case 4: return '已补充证据'
     default: return '未知'
   }
 }
