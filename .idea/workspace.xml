@@ -6,17 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="2d2c3354-b6e3-416f-b17d-7cbd44736f64" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/BackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/BackendApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/LostItemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/controller/LostItemController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/LostItemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/LostItemService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/LostItemServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/LostItemServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/example/backend/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/Admin/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/Admin/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/Home.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/Messages.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/Messages.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/PickedCreate.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/PickedCreate.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dailyProgress.md" beforeDir="false" afterPath="$PROJECT_DIR$/dailyProgress.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,6 +162,8 @@
       <workItem from="1776474658023" duration="6985000" />
       <workItem from="1776493481705" duration="7817000" />
       <workItem from="1776508428415" duration="4302000" />
+      <workItem from="1776515910154" duration="106000" />
+      <workItem from="1776516038358" duration="741000" />
     </task>
     <servers />
   </component>
