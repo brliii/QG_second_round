@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService{
     @Autowired
@@ -155,5 +158,16 @@ public class UserServiceImpl implements UserService{
         }
         //如果所有字段都为 null，updateById 仍然会执行，但不会更新任何字段
         return userMapper.updateById(user) > 0;
+    }
+
+    @Override
+    public List<User> getUserList(Long adminId) {
+        // 验证操作者是否为管理员
+        User admin = userMapper.selectById(adminId);
+        if (admin == null || admin.getRole() != 1) {
+            return new ArrayList<>();
+        }
+        // 返回所有用户列表
+        return userMapper.selectList(null);
     }
 }

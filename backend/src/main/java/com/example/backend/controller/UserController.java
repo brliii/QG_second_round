@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -125,5 +127,15 @@ public class UserController {
         }
         boolean success = userService.updateUserInfo(userId, dto.getNickname(), dto.getAvatar(), dto.getPhone());
         return success?Result.success("修改成功"):Result.error(500, "修改失败");
+    }
+
+    @GetMapping("/list")
+    public Result<List<User>> list(HttpServletRequest request) {
+        Long operatorId = (Long) request.getAttribute("userId");
+        if (operatorId == null) {
+            return Result.error(401, "未登录");
+        }
+        List<User> userList = userService.getUserList(operatorId);
+        return Result.success(userList);
     }
 }

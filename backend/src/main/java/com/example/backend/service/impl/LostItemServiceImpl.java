@@ -43,7 +43,10 @@ public class LostItemServiceImpl implements LostItemService {
         existing.setDescription(updateData.getDescription());
         existing.setImageUrl(updateData.getImageUrl());
         existing.setContact(updateData.getContact());
-        //status和isTop等字段不能由用户修改
+        // 允许用户修改状态（已找回/未找回）
+        if (updateData.getStatus() != null) {
+            existing.setStatus(updateData.getStatus());
+        }
         return lostItemMapper.updateById(existing) > 0;
     }
 

@@ -3,6 +3,8 @@ package com.example.backend.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.backend.entity.User;
 
+import java.util.List;
+
 public interface UserService {
     //注册
     boolean register(User user);
@@ -20,4 +22,6 @@ public interface UserService {
     boolean changePassword(Long userId, String oldPassword, String newPassword);
     //更新用户信息
     boolean updateUserInfo(Long userId, String nickname, String avatar, String phone);
+    //获取用户列表（管理员）
+    List<User> getUserList(Long adminId);
 }

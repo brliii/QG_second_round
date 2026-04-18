@@ -104,7 +104,7 @@
             <el-table-column prop="status" label="状态" width="100">
               <template #default="scope">
                 <el-tag :type="scope.row.status === 0 ? 'warning' : 'success'">
-                  {{ scope.row.status === 0 ? '未找回' : '已找回' }}
+                  {{ itemType === 'lost' ? (scope.row.status === 0 ? '未找回' : '已找回') : (scope.row.status === 0 ? '未认领' : '已认领') }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -174,6 +174,13 @@
           <h2>置顶申请</h2>
           <el-table :data="topRequests" style="width: 100%">
             <el-table-column prop="username" label="申请人" width="120" />
+            <el-table-column prop="itemType" label="物品类型" width="100">
+              <template #default="scope">
+                <el-tag :type="scope.row.itemType === 0 ? 'warning' : 'success'">
+                  {{ scope.row.itemType === 0 ? '失物' : '拾取' }}
+                </el-tag>
+              </template>
+            </el-table-column>
             <el-table-column prop="itemName" label="物品名称" width="150" />
             <el-table-column prop="status" label="状态" width="100">
               <template #default="scope">
@@ -366,6 +373,7 @@ const loadTopRequests = async () => {
       topRequests.value = requests.map(request => ({
         id: request.id,
         username: request.username || request.userName || '未知用户',
+        itemType: request.itemType ?? 0,
         itemName: request.itemName || request.item?.name || `物品ID: ${request.itemId}`,
         status: request.status || 0,
         createTime: request.createTime || request.createdAt || request.requestTime || new Date().toISOString()

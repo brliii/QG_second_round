@@ -56,7 +56,10 @@ public class PickedItemServiceImpl implements PickedItemService {
         existing.setContact(updateData.getContact());
         existing.setVisibilityPreset(updateData.getVisibilityPreset());
         existing.setEnableClaimWorkflow(updateData.getEnableClaimWorkflow());
-        //status等字段不能由用户修改
+        // 允许用户修改状态（已认领/未认领）
+        if (updateData.getStatus() != null) {
+            existing.setStatus(updateData.getStatus());
+        }
         return pickedItemMapper.updateById(existing) > 0;
     }
 
@@ -133,5 +136,25 @@ public class PickedItemServiceImpl implements PickedItemService {
         wrapper.orderByDesc("create_time");
         wrapper.last("limit 50"); // 增加limit，确保有足够的候选物品供AI排序
         return pickedItemMapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<PickedItem> getAvailableItems(int limit) {
+        QueryWrapper<PickedItem> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 0)
+                .orderByDesc("create_time")
+                .last("limit " + limit);
+        return pickedItemMapper.selectList(wrapper);
+    }
+
+    @Override
+    public boolean adminUpdate(PickedItem pickedItem) {
+        return pickedItemMapper.updateById(pickedItem) > 0;
+    }
+
+    @Override
+    public boolean isOwner(Long userId, Long pickedItemId) {
+        PickedItem pickedItem = pickedItemMapper.selectById(pickedItemId);
+        return pickedItem != null && pickedItem.getUserId().equals(userId);
     }
 }

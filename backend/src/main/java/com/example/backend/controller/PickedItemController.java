@@ -178,8 +178,9 @@ public class PickedItemController {
         if (description == null || description.trim().isEmpty()) {
             return Result.error(400, "描述不能为空");
         }
-        //关键词预筛选（最多20条）
-        List<PickedItem> candidates = pickedItemService.searchByKeywords(description);
+        //不要关键词预筛选
+        //直接获取所有未认领的，然后后面交给AI去选
+        List<PickedItem> candidates = pickedItemService.getAvailableItems(100);
         if (candidates.isEmpty()) {
             return Result.success(Collections.emptyList());
         }

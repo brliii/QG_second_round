@@ -191,10 +191,10 @@ const handleSubmit = async () => {
     // 如果申请置顶，发送置顶申请
     if (form.applyTop) {
       try {
-        console.log('发送置顶申请，itemId:', itemId, 'itemType: lost')
+        console.log('发送置顶申请，itemId:', itemId, 'itemType: 0 (lost)')
         const response = await applyTop({
           itemId: itemId,
-          itemType: 'lost'
+          itemType: 0
         })
         console.log('置顶申请响应:', response)
         ElMessage.success('置顶申请已提交，请等待管理员审核')
