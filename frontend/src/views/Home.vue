@@ -151,67 +151,38 @@ const fetchList = async () => {
       total.value = 0
     }
   } else {
-    if (keyword.value && keyword.value.trim()) {
-      try {
-        const response = await searchPickedByDescription(keyword.value)
-        if (response.code === 200 && response.data) {
-          list.value = response.data || []
-          // 优先按置顶状态排序，再按创建时间排序
-          list.value.sort((a, b) => {
-            const aIsTop = a.isTop === 1
-            const bIsTop = b.isTop === 1
-            if (aIsTop && !bIsTop) return -1
-            if (!aIsTop && bIsTop) return 1
-            return new Date(b.createTime) - new Date(a.createTime)
-          })
-          total.value = list.value.length
-          isAiSearch.value = true
-        } else {
-          console.error('AI 搜索失败', response.message)
-          list.value = []
-          total.value = 0
-          isAiSearch.value = false
-        }
-      } catch (err) {
-        console.error('AI 搜索失败', err)
-        list.value = []
-        total.value = 0
+    const params = {
+      location: location.value,
+      name: keyword.value,
+      startTime: startTime.value ? new Date(startTime.value).toISOString() : '',
+      endTime: endTime.value ? new Date(endTime.value).toISOString() : '',
+      page: page.value,
+      size: size.value,
+      sortBy: 'createTime',
+    }
+    try {
+      const response = await getPickedList(params)
+      if (response.code === 200 && response.data) {
+        list.value = response.data.records || []
+        // 优先按置顶状态排序，再按创建时间排序
+        list.value.sort((a, b) => {
+          const aIsTop = a.isTop === 1
+          const bIsTop = b.isTop === 1
+          if (aIsTop && !bIsTop) return -1
+          if (!aIsTop && bIsTop) return 1
+          return new Date(b.createTime) - new Date(a.createTime)
+        })
+        total.value = response.data.total || 0
         isAiSearch.value = false
-      }
-    } else {
-      const params = {
-        location: location.value,
-        name: keyword.value,
-        startTime: startTime.value ? new Date(startTime.value).toISOString() : '',
-        endTime: endTime.value ? new Date(endTime.value).toISOString() : '',
-        page: page.value,
-        size: size.value,
-        sortBy: 'createTime',
-      }
-      try {
-        const response = await getPickedList(params)
-        if (response.code === 200 && response.data) {
-          list.value = response.data.records || []
-          // 优先按置顶状态排序，再按创建时间排序
-          list.value.sort((a, b) => {
-            const aIsTop = a.isTop === 1
-            const bIsTop = b.isTop === 1
-            if (aIsTop && !bIsTop) return -1
-            if (!aIsTop && bIsTop) return 1
-            return new Date(b.createTime) - new Date(a.createTime)
-          })
-          total.value = response.data.total || 0
-          isAiSearch.value = false
-        } else {
-          console.error('获取拾取列表失败', response.message)
-          list.value = []
-          total.value = 0
-        }
-      } catch (err) {
-        console.error('获取拾取列表失败', err)
+      } else {
+        console.error('获取拾取列表失败', response.message)
         list.value = []
         total.value = 0
       }
+    } catch (err) {
+      console.error('获取拾取列表失败', err)
+      list.value = []
+      total.value = 0
     }
   }
 }
@@ -234,14 +205,7 @@ const doAiSearch = async () => {
     }
     if (response.code === 200 && response.data) {
       list.value = response.data || []
-      // 优先按置顶状态排序，再按创建时间排序
-      list.value.sort((a, b) => {
-        const aIsTop = a.isTop === 1
-        const bIsTop = b.isTop === 1
-        if (aIsTop && !bIsTop) return -1
-        if (!aIsTop && bIsTop) return 1
-        return new Date(b.createTime) - new Date(a.createTime)
-      })
+      // 保持AI排序结果，不重新排序
       total.value = list.value.length
       isAiSearch.value = true
     } else {

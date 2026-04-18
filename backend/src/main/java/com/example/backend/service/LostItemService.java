@@ -26,4 +26,6 @@ public interface LostItemService {
     List<LostItem> searchByKeyword(String keyword);
     //判断失物发布者与当前用户是否同个
     boolean isOwner(Long userId, Long lostItemId);
+    //获取正常状态的物品列表
+    List<LostItem> getNormalItems(int limit);
 }

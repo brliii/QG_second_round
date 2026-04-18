@@ -25,9 +25,9 @@ spring:
 # Mybatis-Plus配置
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
-  type-aliases-package: com.example.lostfound.entity
+  type-aliases-package: com.example.backend.entity
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # ?????SQL
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 打印SQL
     map-underscore-to-camel-case: true
 
 # JWT配置
@@ -41,4 +41,3 @@ file:
 
 admin:
   register-secret: mySuperSecretKey123
-

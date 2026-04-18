@@ -119,9 +119,22 @@ public class LostItemServiceImpl implements LostItemService {
     @Override
     public boolean isOwner(Long userId, Long lostItemId) {
         LostItem item = lostItemMapper.selectById(lostItemId);
-        return item != null && item.getUserId().equals(userId);//不存在也顺便返回了
+        return item != null && item.getUserId().equals(userId);
     }
-    
+
+    @Override
+    public List<LostItem> getNormalItems(int limit) {
+        // 先检查并更新过期的置顶物品
+        checkAndUpdateExpiredTopItems();
+        
+        QueryWrapper<LostItem> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 0); // 只查询正常状态的失物
+        wrapper.orderByDesc("is_top"); // 优先显示置顶物品
+        wrapper.orderByDesc("create_time"); // 然后按创建时间排序
+        wrapper.last("LIMIT " + limit);
+        return lostItemMapper.selectList(wrapper);
+    }
+
     @Override
     public List<LostItem> searchByKeyword(String keyword) {
         // 先检查并更新过期的置顶物品

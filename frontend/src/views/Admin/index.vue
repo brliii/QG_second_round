@@ -322,8 +322,8 @@ import { ElMessage } from 'element-plus'
 import { DataLine, User, DocumentCopy, Warning, Star } from '@element-plus/icons-vue'
 import { getStatistics } from '@/api/admin'
 import { banUser as banUserApi, getUserList } from '@/api/user'
-import { getLostList, deleteLost, getLostDetail } from '@/api/lost'
-import { getPickedList, deletePicked, getPickedDetail } from '@/api/picked'
+import { getLostList, adminDeleteLost, getLostDetail } from '@/api/lost'
+import { getPickedList, adminDeletePicked, getPickedDetail } from '@/api/picked'
 import { getPendingReports, handleReport as handleReportApi } from '@/api/report'
 import { getPendingTopRequests, approveTopRequest as approveTopRequestApi } from '@/api/top'
 import { getCommentDetail } from '@/api/comment'
@@ -520,9 +520,9 @@ const deleteItem = async (itemId) => {
   try {
     let response
     if (itemType.value === 'lost') {
-      response = await deleteLost(itemId)
+      response = await adminDeleteLost(itemId)
     } else {
-      response = await deletePicked(itemId)
+      response = await adminDeletePicked(itemId)
     }
     if (response.code === 200) {
       ElMessage.success('删除成功')

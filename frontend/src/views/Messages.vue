@@ -87,6 +87,10 @@ const fetchConversations = async () => {
 }
 
 const openConversation = (conversation) => {
+  // 确保messages属性存在
+  if (!conversation.messages) {
+    conversation.messages = []
+  }
   activeConversation.value = conversation
   // 标记为已读
   conversation.unreadCount = 0

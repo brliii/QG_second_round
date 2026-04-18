@@ -24,4 +24,6 @@ public interface UserService {
     boolean updateUserInfo(Long userId, String nickname, String avatar, String phone);
     //获取用户列表（管理员）
     List<User> getUserList(Long adminId);
+    //根据ID获取用户
+    User getById(Long userId);
 }

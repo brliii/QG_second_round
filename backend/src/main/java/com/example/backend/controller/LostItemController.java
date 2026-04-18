@@ -95,8 +95,8 @@ public class LostItemController {
     
     @GetMapping("/search")
     public Result<List<LostItemVo>> search(@RequestParam String description) {
-        // 先通过关键词预筛选，减少候选集大小
-        List<LostItem> candidates = lostItemService.searchByKeyword(description);
+        // 直接获取所有正常状态的失物，然后交给AI进行智能排序
+        List<LostItem> candidates = lostItemService.getNormalItems(100);
         // 使用AI进行智能排序
         List<LostItem> sortedItems = aiService.searchLostBestMatches(description, candidates);
         // 转换为VO

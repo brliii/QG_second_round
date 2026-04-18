@@ -174,4 +174,9 @@ public class UserServiceImpl implements UserService{
         // 返回所有用户列表
         return userMapper.selectList(null);
     }
+
+    @Override
+    public User getById(Long userId) {
+        return userMapper.selectById(userId);
+    }
 }
